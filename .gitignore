@@ -1,0 +1,26 @@
+# Dependencies and build outputs
+node_modules/
+dist/
+target/
+.turbo/
+.vite/
+
+# Tauri generated artifacts
+apps/desktop/src-tauri/gen/schemas/
+apps/desktop/src-tauri/target/
+
+# Local environment and editor files
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Test and coverage output
+coverage/
+*.lcov
+*.tsbuildinfo
+
