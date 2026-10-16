@@ -8,6 +8,7 @@ import { RepositoryProvider, describeError, useRepository } from './repository-c
 import { rememberProject } from './recents.js';
 import { ExplorerPanel } from '../explorer/ExplorerPanel.js';
 import { BoardPanel } from '../canvas/BoardPanel.js';
+import { AtlasScreen } from '../atlas/AtlasScreen.js';
 
 interface ProjectScreenProps {
   readonly root: string;
@@ -22,10 +23,13 @@ export function ProjectScreen({ root, onClose }: ProjectScreenProps) {
   );
 }
 
+type ProjectView = 'workspace' | 'atlas';
+
 function ProjectWorkspace({ onClose }: { onClose: () => void }) {
   const { root, database, files, workspace, busy, refresh } = useRepository();
   const [issues, setIssues] = useState<readonly string[] | null>(null);
   const [selectedPath, setSelectedPath] = useState<string | null>(null);
+  const [view, setView] = useState<ProjectView>('workspace');
   const toast = useToast();
 
   useEffect(() => {
@@ -81,6 +85,22 @@ function ProjectWorkspace({ onClose }: { onClose: () => void }) {
             {root}
           </span>
         </div>
+        <nav className="view-tabs" aria-label="Vistas del proyecto">
+          <button
+            type="button"
+            className={`view-tab${view === 'workspace' ? ' is-active' : ''}`}
+            onClick={() => setView('workspace')}
+          >
+            Espacio
+          </button>
+          <button
+            type="button"
+            className={`view-tab${view === 'atlas' ? ' is-active' : ''}`}
+            onClick={() => setView('atlas')}
+          >
+            Atlas
+          </button>
+        </nav>
         <div className="project-stats">
           <span className="stat">
             <strong>{Object.keys(database.sources).length}</strong> archivos
@@ -110,18 +130,24 @@ function ProjectWorkspace({ onClose }: { onClose: () => void }) {
         </div>
       </header>
 
-      <div className="project-body">
-        <ExplorerPanel selectedPath={selectedPath} onSelect={setSelectedPath} />
-        <section className="board" aria-label="Espacio de trabajo">
-          {selectedPath ? (
-            <BoardPanel root={root} path={selectedPath} />
-          ) : (
-            <EmptyState title="Selecciona un archivo">
-              Elige un PNG o Aseprite en el explorador para verlo en el canvas pixel perfect.
-            </EmptyState>
-          )}
-        </section>
-      </div>
+      {view === 'workspace' ? (
+        <div className="project-body">
+          <ExplorerPanel selectedPath={selectedPath} onSelect={setSelectedPath} />
+          <section className="board" aria-label="Espacio de trabajo">
+            {selectedPath ? (
+              <BoardPanel root={root} path={selectedPath} />
+            ) : (
+              <EmptyState title="Selecciona un archivo">
+                Elige un PNG o Aseprite en el explorador para verlo en el canvas pixel perfect.
+              </EmptyState>
+            )}
+          </section>
+        </div>
+      ) : (
+        <div className="project-body is-atlas">
+          <AtlasScreen />
+        </div>
+      )}
 
       {issues ? (
         <Modal
