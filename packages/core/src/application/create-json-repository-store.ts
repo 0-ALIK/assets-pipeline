@@ -1,5 +1,6 @@
 import type { RepositoryDatabase } from '../domain/repository.js';
 import type { RepositoryStore, RepositoryStoreOptions } from '../ports/repository-store.js';
+import { PipelineError } from '../domain/errors.js';
 
 /** Creates a JSON repository adapter using filesystem behavior supplied by the host app. */
 export function createJsonRepositoryStore(options: RepositoryStoreOptions): RepositoryStore {
@@ -11,8 +12,8 @@ export function createJsonRepositoryStore(options: RepositoryStoreOptions): Repo
       let parsed: unknown;
       try {
         parsed = JSON.parse(contents) as unknown;
-      } catch (error) {
-        throw new TypeError('Repository database contains invalid JSON.', { cause: error });
+      } catch {
+        throw new PipelineError('INVALID_REPOSITORY', 'db.json contiene JSON inválido.');
       }
       return options.validate(parsed);
     },
