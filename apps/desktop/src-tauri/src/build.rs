@@ -10,7 +10,7 @@ use crate::repository::{canonical_root, resolve_relative, token, CommandError, C
 const BUILD_MARKER: &str = ".assets-pipeline-build";
 
 /// Mirrors the Core `AtlasBuildPlan`: layout decisions come from Core, pixel work happens here.
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct BuildPlan {
     pages: Vec<PagePlan>,
@@ -18,7 +18,7 @@ pub struct BuildPlan {
 }
 
 #[allow(dead_code)]
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 struct PagePlan {
     atlas: String,
@@ -30,7 +30,7 @@ struct PagePlan {
     animations: Vec<AnimationPlan>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 struct Placement {
     id: String,
@@ -43,7 +43,7 @@ struct Placement {
     height: u32,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 struct SourceRect {
     x: u32,
@@ -52,13 +52,13 @@ struct SourceRect {
     height: u32,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Clone)]
 struct Pivot {
     x: f64,
     y: f64,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 struct AnimationPlan {
     id: String,
@@ -66,7 +66,7 @@ struct AnimationPlan {
     frames: Vec<FramePlan>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 struct FramePlan {
     sprite: String,
@@ -343,6 +343,98 @@ mod tests {
         assert!(checked_output(&root, "../outside").is_err());
         assert!(checked_output(&root, "dist/../dist").is_err());
         assert!(checked_output(&root, ".assets-pipeline-cache/out").is_err());
+        fs::remove_dir_all(&root).ok();
+    }
+
+    fn sample_plan(index: &str) -> BuildPlan {
+        BuildPlan {
+            pages: vec![PagePlan {
+                atlas: "chars".into(),
+                page: 0,
+                file_name: "chars_0.png".into(),
+                size: 8,
+                gap: 1,
+                sprites: vec![Placement {
+                    id: index.into(),
+                    source_path: "hero.png".into(),
+                    source: SourceRect {
+                        x: 0,
+                        y: 0,
+                        width: 4,
+                        height: 4,
+                    },
+                    pivot: Pivot { x: 0.5, y: 1.0 },
+                    x: 1,
+                    y: 2,
+                    width: 4,
+                    height: 4,
+                }],
+                animations: vec![AnimationPlan {
+                    id: "hero/walk".into(),
+                    playback: "loop".into(),
+                    frames: vec![FramePlan {
+                        sprite: index.into(),
+                        duration_ms: 100,
+                    }],
+                }],
+            }],
+            index: [("hero/one".to_string(), "chars_0.png".to_string())]
+                .into_iter()
+                .collect(),
+        }
+    }
+
+    #[test]
+    fn builds_pages_metadata_and_index_end_to_end() {
+        let root = temporary_root();
+        let mut source = image::RgbaImage::new(4, 4);
+        for pixel in source.pixels_mut() {
+            *pixel = image::Rgba([255, 0, 0, 255]);
+        }
+        source.save(root.join("hero.png")).expect("write source");
+
+        let result = build_atlases(
+            root.to_string_lossy().into_owned(),
+            "dist/assets".into(),
+            sample_plan("hero/one"),
+        )
+        .expect("build succeeds");
+
+        assert_eq!(result.files.len(), 3);
+        assert!(root.join("dist/assets/chars_0.png").is_file());
+        let metadata: serde_json::Value = serde_json::from_str(
+            &fs::read_to_string(root.join("dist/assets/chars_0.json")).expect("page json"),
+        )
+        .expect("valid json");
+        assert_eq!(metadata["sprites"]["hero/one"]["x"], 1);
+        assert_eq!(metadata["sprites"]["hero/one"]["y"], 2);
+        assert_eq!(metadata["sprites"]["hero/one"]["pivot"]["y"], 1.0);
+        assert!(metadata["sprites"]["hero/one"].get("atlas").is_none());
+        assert_eq!(metadata["animations"]["hero/walk"]["playback"], "loop");
+        assert_eq!(metadata["animations"]["hero/walk"]["frames"][0]["durationMs"], 100);
+        let index: serde_json::Value = serde_json::from_str(
+            &fs::read_to_string(root.join("dist/assets/index.json")).expect("index json"),
+        )
+        .expect("valid json");
+        assert_eq!(index["hero/one"], "chars_0.png");
+
+        // An unmarked non-empty folder is never replaced.
+        fs::create_dir_all(root.join("manual")).expect("manual dir");
+        fs::write(root.join("manual/keep.txt"), "keep").expect("manual file");
+        let refused = build_atlases(
+            root.to_string_lossy().into_owned(),
+            "manual".into(),
+            sample_plan("hero/one"),
+        );
+        assert!(refused.is_err());
+
+        // Rebuilding over a marked output succeeds.
+        let rebuilt = build_atlases(
+            root.to_string_lossy().into_owned(),
+            "dist/assets".into(),
+            sample_plan("hero/one"),
+        );
+        assert!(rebuilt.is_ok());
         fs::remove_dir_all(&root).ok();
     }
 }
