@@ -728,6 +728,278 @@ h1 {
   word-break: break-word;
 }
 
+/* ---------- Explorer ---------- */
+
+.explorer-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 9px 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.explorer-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.explorer-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.explorer-tree {
+  flex: 1;
+  overflow: auto;
+  padding: 6px 0 12px;
+}
+
+.tree-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding-right: 6px;
+  min-height: 26px;
+  font-size: 13px;
+}
+
+.tree-row:hover {
+  background: #1d2222;
+}
+
+.tree-row.is-selected {
+  background: #243029;
+}
+
+.tree-row.is-missing .tree-label {
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+.tree-toggle {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  flex: none;
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--text-faint);
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.tree-toggle:hover {
+  background: #2a302f;
+  color: var(--text);
+}
+
+.tree-icon {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  flex: none;
+  color: var(--text-faint);
+}
+
+.tree-label {
+  flex: 1;
+  min-width: 0;
+  padding: 3px 2px;
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tree-label:hover {
+  color: var(--accent);
+}
+
+.def-dot {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  margin: 0 3px;
+  border-radius: 50%;
+  background: var(--accent-strong);
+  box-shadow: 0 0 6px rgb(155 215 156 / 45%);
+}
+
+.count-badge {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 6px;
+  border-radius: 20px;
+  background: #202525;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-size: 10.5px;
+  line-height: 1.5;
+}
+
+.count-badge.badge-anim {
+  color: var(--info);
+}
+
+.missing-badge {
+  flex: none;
+  display: grid;
+  place-items: center;
+  color: var(--warning);
+}
+
+.tree-more {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 5px;
+  color: var(--text-faint);
+  cursor: pointer;
+  opacity: 0;
+}
+
+.tree-row:hover .tree-more,
+.tree-row.is-selected .tree-more {
+  opacity: 1;
+}
+
+.tree-more:hover {
+  background: #2a302f;
+  color: var(--text);
+}
+
+.explorer-legend {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 10px;
+  border-top: 1px solid var(--border);
+  color: var(--text-faint);
+  font-size: 11px;
+}
+
+.explorer-legend .def-dot {
+  margin: 0;
+}
+
+.legend-sep {
+  width: 1px;
+  height: 12px;
+  margin: 0 4px;
+  background: var(--border-strong);
+}
+
+/* ---------- Context menu ---------- */
+
+.context-menu {
+  position: fixed;
+  z-index: 50;
+  min-width: 200px;
+  padding: 5px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  box-shadow: 0 18px 50px rgb(0 0 0 / 45%);
+  display: grid;
+}
+
+.context-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 10px;
+  background: none;
+  border: none;
+  border-radius: 7px;
+  color: var(--text);
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.context-menu-item:hover {
+  background: #242a29;
+}
+
+.context-menu-item.is-danger {
+  color: #f0b7b7;
+}
+
+.context-menu-item.is-danger:hover {
+  background: #3a2626;
+}
+
+/* ---------- Plan preview ---------- */
+
+.plan-preview {
+  display: grid;
+  gap: 14px;
+  font-size: 13px;
+}
+
+.plan-summary {
+  margin: 0;
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+
+.plan-block h4 {
+  margin: 0 0 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.plan-block ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 4px;
+}
+
+.plan-block li {
+  color: var(--text-dim);
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.plan-note {
+  color: var(--warning);
+}
+
+.plan-warning {
+  margin: 0 0 12px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  background: rgb(221 192 122 / 8%);
+  border: 1px solid rgb(221 192 122 / 30%);
+  color: var(--warning);
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+
 @media (max-width: 520px) {
   .welcome-card {
     padding: 34px 28px;

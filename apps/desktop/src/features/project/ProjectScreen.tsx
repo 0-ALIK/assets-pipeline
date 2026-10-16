@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Modal } from '../../components/Modal.js';
-import { EmptyState, Spinner } from '../../components/Field.js';
+import { EmptyState } from '../../components/Field.js';
 import { useToast } from '../../components/Toast.js';
 import { revealItemInDir } from '@tauri-apps/plugin-opener';
 import { ArrowLeft, FolderOpen, RefreshCw, ShieldCheck } from 'lucide-react';
 import { RepositoryProvider, describeError, useRepository } from './repository-context.js';
 import { rememberProject } from './recents.js';
+import { ExplorerPanel } from '../explorer/ExplorerPanel.js';
 
 interface ProjectScreenProps {
   readonly root: string;
@@ -23,7 +24,14 @@ export function ProjectScreen({ root, onClose }: ProjectScreenProps) {
 function ProjectWorkspace({ onClose }: { onClose: () => void }) {
   const { root, database, files, workspace, busy, refresh } = useRepository();
   const [issues, setIssues] = useState<readonly string[] | null>(null);
+  const [selectedPath, setSelectedPath] = useState<string | null>(null);
   const toast = useToast();
+
+  useEffect(() => {
+    if (selectedPath && !files.some((file) => file.path === selectedPath)) {
+      setSelectedPath(null);
+    }
+  }, [files, selectedPath]);
 
   const name = database.project.name;
 
@@ -97,17 +105,12 @@ function ProjectWorkspace({ onClose }: { onClose: () => void }) {
       </header>
 
       <div className="project-body">
-        <aside className="explorer-panel" aria-label="Archivos del repositorio">
-          {busy ? <Spinner label="Trabajando…" /> : null}
-          <div className="explorer-placeholder">
-            {files.length === 0
-              ? 'El repositorio todavía no tiene archivos.'
-              : 'Explorador de archivos en camino.'}
-          </div>
-        </aside>
+        <ExplorerPanel selectedPath={selectedPath} onSelect={setSelectedPath} />
         <section className="board" aria-label="Espacio de trabajo">
-          <EmptyState title="Selecciona un archivo">
-            Elige un PNG o Aseprite en el explorador para verlo en el canvas pixel perfect.
+          <EmptyState title={selectedPath ? selectedPath : 'Selecciona un archivo'}>
+            {selectedPath
+              ? 'El canvas pixel perfect se muestra aquí.'
+              : 'Elige un PNG o Aseprite en el explorador para verlo en el canvas pixel perfect.'}
           </EmptyState>
         </section>
       </div>
