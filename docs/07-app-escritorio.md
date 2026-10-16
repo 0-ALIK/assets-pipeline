@@ -9,7 +9,9 @@ perder nada.
 
 ## Requisitos y ejecución
 
-La app necesita Rust y los requisitos de Tauri para tu plataforma, además de Node y pnpm.
+La app necesita Rust y los requisitos de Tauri para tu plataforma, además de Node y pnpm. Asegúrate
+de que `cargo` está en el `PATH` (`cargo --version` debe responder; rustup lo deja en
+`%USERPROFILE%\.cargo\bin` en Windows y `~/.cargo/bin` en Linux/macOS).
 
 ```sh
 # Desarrollo (Vite + ventana nativa)
@@ -101,6 +103,22 @@ En desarrollo también puedes pasar el repositorio directamente al ejecutable:
 ```sh
 pnpm --filter @assets-pipeline/desktop tauri dev -- --repo ./game-assets
 ```
+
+### Desarrollo vs producción (Windows y Linux)
+
+El registro del esquema apunta al **último ejecutable que arrancó**, así que conviene entender los
+dos flujos:
+
+- **Desarrollo** (`tauri dev`): el binario de `target/debug` carga la interfaz desde el servidor de
+  Vite (`http://localhost:5173`). Mientras `tauri dev` siga corriendo, `assets-pipeline` abre la app
+  de desarrollo con normalidad. Si ejecutas ese binario debug **sin** el servidor, la ventana
+  muestra `ERR_CONNECTION_REFUSED` aunque la CLI haya lanzado el enlace correctamente.
+- **Producción** (`tauri build` + instalador): el ejecutable instalado lleva el frontend embebido y
+  no necesita servidor. Instalar el bundle re-registra `assets-pipeline://` apuntando a ese
+  ejecutable; además, cada arranque de la app vuelve a registrar el esquema por si cambió de sitio.
+
+El primer `tauri build` descarga NSIS y WiX (requiere red) y tarda varios minutos. Los artefactos
+quedan en `apps/desktop/src-tauri/target/release/bundle/nsis/` y `.../msi/`.
 
 ## Modelo compartido y bloqueos
 
