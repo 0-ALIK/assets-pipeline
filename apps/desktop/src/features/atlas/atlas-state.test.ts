@@ -64,9 +64,6 @@ describe('listAtlases', () => {
 
 describe('unassignedGroups', () => {
   it('lists only groups without an atlas', () => {
-    expect(unassignedGroups(sample).map((group) => group.name)).toEqual([
-      'environment',
-      'player',
-    ]);
+    expect(unassignedGroups(sample).map((group) => group.name)).toEqual(['environment', 'player']);
   });
 });
