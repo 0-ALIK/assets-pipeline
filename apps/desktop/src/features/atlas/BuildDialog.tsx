@@ -1,0 +1,161 @@
+import { useEffect, useState } from 'react';
+import { AlertTriangle, CheckCircle2, HardDriveDownload } from 'lucide-react';
+import { planAtlasBuild } from '@assets-pipeline/core';
+import type { AtlasBuildPlan } from '@assets-pipeline/core';
+import { revealItemInDir } from '@tauri-apps/plugin-opener';
+import { Modal } from '../../components/Modal.js';
+import { Field } from '../../components/Field.js';
+import { useToast } from '../../components/Toast.js';
+import { call } from '../../adapters/tauri/commands.js';
+import { describeError, useRepository } from '../project/repository-context.js';
+
+interface BuildDialogProps {
+  readonly onClose: () => void;
+}
+
+type PlanState =
+  | { readonly status: 'ready'; readonly plan: AtlasBuildPlan }
+  | { readonly status: 'error'; readonly message: string };
+
+interface BuildOutcome {
+  readonly output: string;
+  readonly files: readonly string[];
+}
+
+export function BuildDialog({ onClose }: BuildDialogProps) {
+  const { root, database, refresh } = useRepository();
+  const toast = useToast();
+  const [output, setOutput] = useState('dist/assets');
+  const [planState, setPlanState] = useState<PlanState | null>(null);
+  const [building, setBuilding] = useState(false);
+  const [result, setResult] = useState<BuildOutcome | null>(null);
+
+  useEffect(() => {
+    try {
+      setPlanState({ status: 'ready', plan: planAtlasBuild(database) });
+    } catch (error) {
+      setPlanState({ status: 'error', message: describeError(error) });
+    }
+  }, [database]);
+
+  const build = async (): Promise<void> => {
+    if (!planState || planState.status !== 'ready') return;
+    setBuilding(true);
+    try {
+      const outcome = await call<BuildOutcome>('build_atlases', {
+        root,
+        output,
+        plan: planState.plan,
+      });
+      setResult(outcome);
+      toast.success(`Build completado: ${outcome.files.length} archivos.`);
+      await refresh();
+    } catch (error) {
+      toast.error(describeError(error));
+    } finally {
+      setBuilding(false);
+    }
+  };
+
+  return (
+    <Modal
+      title="Generar atlas"
+      onClose={onClose}
+      width={660}
+      footer={
+        result ? (
+          <>
+            <button
+              type="button"
+              className="btn"
+              onClick={() => void revealItemInDir(result.output).catch(() => undefined)}
+            >
+              Mostrar en el explorador
+            </button>
+            <button type="button" className="btn btn-primary" onClick={onClose}>
+              Cerrar
+            </button>
+          </>
+        ) : (
+          <>
+            <button type="button" className="btn" onClick={onClose} disabled={building}>
+              Cancelar
+            </button>
+            <button
+              type="button"
+              className="btn btn-primary"
+              disabled={building || planState?.status !== 'ready'}
+              onClick={() => void build()}
+            >
+              <HardDriveDownload size={14} /> {building ? 'Generando…' : 'Generar'}
+            </button>
+          </>
+        )
+      }
+    >
+      {result ? (
+        <div className="build-result">
+          <p className="build-ok">
+            <CheckCircle2 size={15} /> Build completado en <code>{result.output}</code>
+          </p>
+          <ul className="build-files">
+            {result.files.map((file) => (
+              <li key={file}>
+                <code>{file}</code>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : (
+        <>
+          <Field
+            label="Carpeta de salida"
+            hint="Subcarpeta del repositorio, igual que `assets-pipeline build --output`."
+          >
+            <input
+              className="input mono"
+              value={output}
+              disabled={building}
+              onChange={(event) => setOutput(event.target.value)}
+            />
+          </Field>
+          <PlanSummary state={planState} />
+        </>
+      )}
+    </Modal>
+  );
+}
+
+function PlanSummary({ state }: { state: PlanState | null }) {
+  if (!state) return null;
+  if (state.status === 'error') {
+    return (
+      <div className="plan-check is-error">
+        <AlertTriangle size={14} />
+        <p>{state.message}</p>
+      </div>
+    );
+  }
+  const pages = state.plan.pages;
+  const sprites = pages.reduce((total, page) => total + page.sprites.length, 0);
+  const animations = pages.reduce((total, page) => total + page.animations.length, 0);
+  return (
+    <div className="plan-check is-ok plan-check-build">
+      <CheckCircle2 size={14} />
+      <div>
+        <p>
+          Listo para construir: {pages.length} página(s), {sprites} sprites, {animations}{' '}
+          animaciones.
+        </p>
+        <ul className="plan-check-pages">
+          {pages.map((page) => (
+            <li key={page.fileName}>
+              <code>{page.fileName}</code> · {page.sprites.length} sprites ·{' '}
+              {page.animations.length} animaciones
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+}

@@ -16,30 +16,30 @@ pub struct CommandError {
 }
 
 impl CommandError {
-    fn new(code: &'static str, message: impl Into<String>) -> Self {
+    pub(crate) fn new(code: &'static str, message: impl Into<String>) -> Self {
         Self {
             code,
             message: message.into(),
         }
     }
 
-    fn invalid(message: impl Into<String>) -> Self {
+    pub(crate) fn invalid(message: impl Into<String>) -> Self {
         Self::new("INVALID_INPUT", message)
     }
 
-    fn not_found(message: impl Into<String>) -> Self {
+    pub(crate) fn not_found(message: impl Into<String>) -> Self {
         Self::new("NOT_FOUND", message)
     }
 
-    fn already_exists(message: impl Into<String>) -> Self {
+    pub(crate) fn already_exists(message: impl Into<String>) -> Self {
         Self::new("ALREADY_EXISTS", message)
     }
 
-    fn in_use(message: impl Into<String>) -> Self {
+    pub(crate) fn in_use(message: impl Into<String>) -> Self {
         Self::new("IN_USE", message)
     }
 
-    fn invalid_repository(message: impl Into<String>) -> Self {
+    pub(crate) fn invalid_repository(message: impl Into<String>) -> Self {
         Self::new("INVALID_REPOSITORY", message)
     }
 
@@ -66,7 +66,7 @@ pub struct FileHeadDto {
     bytes: Vec<u8>,
 }
 
-fn token() -> String {
+pub(crate) fn token() -> String {
     let nanos = SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .map(|elapsed| elapsed.as_nanos())

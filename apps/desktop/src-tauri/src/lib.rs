@@ -3,6 +3,7 @@ use std::sync::Mutex;
 use serde::Serialize;
 use tauri::{Emitter, Manager};
 
+mod build;
 mod images;
 mod repository;
 
@@ -136,6 +137,7 @@ pub fn run() {
             repository::acquire_lock,
             repository::release_lock,
             images::render_source,
+            build::build_atlases,
         ])
         .run(tauri::generate_context!())
         .expect("error while running Assets Pipeline");
