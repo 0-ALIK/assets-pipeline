@@ -71,7 +71,12 @@ export function CreateProjectDialog({ onClose, onCreated }: CreateProjectDialogP
           <button type="button" className="btn" onClick={onClose} disabled={busy}>
             Cancelar
           </button>
-          <button type="button" className="btn btn-primary" onClick={() => void create()} disabled={busy}>
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={() => void create()}
+            disabled={busy}
+          >
             {busy ? 'Creando…' : 'Crear proyecto'}
           </button>
         </>
@@ -95,7 +100,12 @@ export function CreateProjectDialog({ onClose, onCreated }: CreateProjectDialogP
             <span className={`folder-value${folder ? '' : ' placeholder'}`}>
               {folder ?? 'Ninguna carpeta seleccionada'}
             </span>
-            <button type="button" className="btn" onClick={() => void chooseFolder()} disabled={busy}>
+            <button
+              type="button"
+              className="btn"
+              onClick={() => void chooseFolder()}
+              disabled={busy}
+            >
               Elegir carpeta…
             </button>
           </div>

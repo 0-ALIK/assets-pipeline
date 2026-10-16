@@ -73,8 +73,8 @@ export function SpritePanel({
                 <button type="button" className="sprite-main" onClick={() => onSelect(id)}>
                   <span className="sprite-name">{id}</span>
                   <span className="sprite-meta">
-                    {sprite.width}×{sprite.height} · ({sprite.x}, {sprite.y}) · pivot {sprite.pivot.x},{' '}
-                    {sprite.pivot.y}
+                    {sprite.width}×{sprite.height} · ({sprite.x}, {sprite.y}) · pivot{' '}
+                    {sprite.pivot.x}, {sprite.pivot.y}
                   </span>
                 </button>
                 <div className="sprite-actions">

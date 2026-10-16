@@ -42,10 +42,7 @@ export function AnimationPanel({
           {animationIds.map((id) => {
             const animation = animations[id]!;
             return (
-              <li
-                key={id}
-                className={`animation-item${id === activeId ? ' is-selected' : ''}`}
-              >
+              <li key={id} className={`animation-item${id === activeId ? ' is-selected' : ''}`}>
                 <button type="button" className="animation-main" onClick={() => onOpen(id)}>
                   <span className="animation-name">{id}</span>
                   <span className="animation-meta">

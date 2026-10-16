@@ -1,8 +1,4 @@
-import {
-  PipelineError,
-  parseAsepriteHeader,
-  parsePngHeader,
-} from '@assets-pipeline/core';
+import { PipelineError, parseAsepriteHeader, parsePngHeader } from '@assets-pipeline/core';
 import type { FileEntry, ImageSize, ManagedFiles, StagedRemoval } from '@assets-pipeline/core';
 import { call } from './commands.js';
 

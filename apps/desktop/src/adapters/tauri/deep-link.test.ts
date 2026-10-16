@@ -3,9 +3,7 @@ import { repositoryFromUrl } from './deep-link.js';
 
 describe('repositoryFromUrl', () => {
   it('parses repository links and decodes the path', () => {
-    const request = repositoryFromUrl(
-      'assets-pipeline://open?repo=C%3A%5Cdev%5Cmy%20project',
-    );
+    const request = repositoryFromUrl('assets-pipeline://open?repo=C%3A%5Cdev%5Cmy%20project');
     expect(request).toEqual({ repo: 'C:\\dev\\my project' });
   });
 

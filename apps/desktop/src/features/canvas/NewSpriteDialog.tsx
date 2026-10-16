@@ -80,13 +80,21 @@ export function NewSpriteDialog({
           <button type="button" className="btn" onClick={onClose} disabled={busy}>
             Cancelar
           </button>
-          <button type="button" className="btn btn-primary" onClick={() => void submit()} disabled={busy}>
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={() => void submit()}
+            disabled={busy}
+          >
             {busy ? 'Creando…' : 'Crear sprite'}
           </button>
         </>
       }
     >
-      <Field label="ID" hint="Segmentos separados por /. El primer segmento define el grupo del atlas.">
+      <Field
+        label="ID"
+        hint="Segmentos separados por /. El primer segmento define el grupo del atlas."
+      >
         <input
           className="input mono"
           value={id}

@@ -67,7 +67,12 @@ function ProjectWorkspace({ onClose }: { onClose: () => void }) {
   return (
     <div className="project-screen">
       <header className="project-header">
-        <button type="button" className="btn btn-icon" aria-label="Volver al inicio" onClick={onClose}>
+        <button
+          type="button"
+          className="btn btn-icon"
+          aria-label="Volver al inicio"
+          onClick={onClose}
+        >
           <ArrowLeft size={16} />
         </button>
         <div className="project-title">

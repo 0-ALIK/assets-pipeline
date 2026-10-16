@@ -149,9 +149,7 @@ export function AnimationPlayer({
       1,
       Math.min(
         16,
-        Math.floor(
-          Math.min((size.width - 48) / layout.width, (size.height - 48) / layout.height),
-        ),
+        Math.floor(Math.min((size.width - 48) / layout.width, (size.height - 48) / layout.height)),
       ),
     );
     const originX = Math.round((size.width - layout.width * zoom) / 2);
@@ -206,12 +204,20 @@ export function AnimationPlayer({
             type="button"
             className="btn btn-sm"
             onClick={() => setPlaying((current) => !current)}
-            disabled={frames.length === 0 || (!playing && elapsedRef.current >= total && animation.playback === 'once')}
+            disabled={
+              frames.length === 0 ||
+              (!playing && elapsedRef.current >= total && animation.playback === 'once')
+            }
           >
             {playing ? <Pause size={14} /> : <Play size={14} />}
             {playing ? 'Pausar' : 'Reproducir'}
           </button>
-          <button type="button" className="btn btn-sm" onClick={restart} disabled={frames.length === 0}>
+          <button
+            type="button"
+            className="btn btn-sm"
+            onClick={restart}
+            disabled={frames.length === 0}
+          >
             <RotateCcw size={14} /> Reiniciar
           </button>
         </div>

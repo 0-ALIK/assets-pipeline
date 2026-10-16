@@ -18,7 +18,10 @@ export function toPipelineError(error: unknown): Error {
   if (typeof error === 'object' && error !== null && 'code' in error && 'message' in error) {
     const { code, message } = error as { code: unknown; message: unknown };
     if (typeof message === 'string') {
-      const resolved = typeof code === 'string' && knownCodes.has(code) ? (code as PipelineErrorCode) : 'INVALID_REPOSITORY';
+      const resolved =
+        typeof code === 'string' && knownCodes.has(code)
+          ? (code as PipelineErrorCode)
+          : 'INVALID_REPOSITORY';
       return new PipelineError(resolved, message);
     }
   }

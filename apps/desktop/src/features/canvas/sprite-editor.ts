@@ -125,9 +125,7 @@ export function fitZoom(
 ): number {
   const availableWidth = Math.max(viewport.width - padding, 1);
   const availableHeight = Math.max(viewport.height - padding, 1);
-  const zoom = Math.floor(
-    Math.min(availableWidth / bounds.width, availableHeight / bounds.height),
-  );
+  const zoom = Math.floor(Math.min(availableWidth / bounds.width, availableHeight / bounds.height));
   return clamp(zoom, 1, 16);
 }
 

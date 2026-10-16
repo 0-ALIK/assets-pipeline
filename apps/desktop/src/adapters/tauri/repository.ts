@@ -14,8 +14,7 @@ export function createTauriWorkspace(root: string): RepositoryWorkspace {
       // The Tauri commands resolve the database from the repository root, so the
       // database path is informational only for this adapter.
       readText: () => call<string | null>('read_database', { root }),
-      writeTextAtomically: (_path, contents) =>
-        call<void>('write_database', { root, contents }),
+      writeTextAtomically: (_path, contents) => call<void>('write_database', { root, contents }),
     },
     validate: validateRepositoryDatabase,
   });

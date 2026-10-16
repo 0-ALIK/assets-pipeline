@@ -68,10 +68,12 @@ export function BoardPanel({ root, path }: BoardPanelProps) {
     () => Object.keys(animations).sort((left, right) => left.localeCompare(right)),
     [animations],
   );
-  const { image, loading: imageLoading, error: imageError, reload: reloadImage } = useSourceImage(
-    root,
-    path,
-  );
+  const {
+    image,
+    loading: imageLoading,
+    error: imageError,
+    reload: reloadImage,
+  } = useSourceImage(root, path);
 
   const [viewport, setViewport] = useState<{ zoom: number; offset: Point }>({
     zoom: 1,
@@ -462,119 +464,127 @@ export function BoardPanel({ root, path }: BoardPanelProps) {
         />
       ) : (
         <div className="board-stage">
-        <header className="board-header">
-          <span className="board-path mono" title={path}>
-            {path}
-          </span>
-          {image ? (
-            <span className="board-dims">
-              {image.width}×{image.height}
+          <header className="board-header">
+            <span className="board-path mono" title={path}>
+              {path}
             </span>
-          ) : null}
-          {imageLoading ? <Loader2 size={14} className="spin" aria-label="Cargando imagen" /> : null}
-          <div className="zoom-controls">
-            <button
-              type="button"
-              className="btn btn-icon btn-sm"
-              aria-label="Alejar"
-              onClick={() => stepZoom(-1)}
-            >
-              <ZoomOut size={14} />
-            </button>
-            <span className="zoom-value mono">{viewport.zoom}×</span>
-            <button
-              type="button"
-              className="btn btn-icon btn-sm"
-              aria-label="Acercar"
-              onClick={() => stepZoom(1)}
-            >
-              <ZoomIn size={14} />
-            </button>
-            <button type="button" className="btn btn-sm" onClick={() => fitViewport(image)}>
-              <Maximize size={13} /> Ajustar
-            </button>
-            <button
-              type="button"
-              className="btn btn-sm"
-              onClick={() => {
-                if (!image) return;
-                setViewport({
-                  zoom: 1,
-                  offset: centeredOffset({ width: image.width, height: image.height }, stageSize, 1),
-                });
-              }}
-            >
-              100%
-            </button>
-            <button
-              type="button"
-              className="btn btn-icon btn-sm"
-              aria-label="Recargar imagen"
-              title="Recargar imagen"
-              onClick={reloadImage}
-            >
-              <RotateCcw size={14} />
-            </button>
-          </div>
-        </header>
-
-        <div
-          className="board-canvas"
-          tabIndex={0}
-          onKeyDown={(event) => {
-            const target = event.target as HTMLElement;
-            if (target.closest('input, textarea, select') !== null) return;
-            if (event.key === 'Escape') {
-              if (drawMode) {
-                setDrawMode(false);
-                setDrawRect(null);
-              }
-              dragRef.current = null;
-              return;
-            }
-            if (!draftRef.current) return;
-            const step = event.shiftKey ? 8 : 1;
-            if (event.key === 'ArrowLeft') nudge(-step, 0);
-            else if (event.key === 'ArrowRight') nudge(step, 0);
-            else if (event.key === 'ArrowUp') nudge(0, -step);
-            else if (event.key === 'ArrowDown') nudge(0, step);
-            else return;
-            event.preventDefault();
-          }}
-        >
-          {imageError ? (
-            <div className="board-image-error">
-              <ImageOff size={20} />
-              <p>{imageError}</p>
-              <button type="button" className="btn btn-sm" onClick={reloadImage}>
-                Reintentar
+            {image ? (
+              <span className="board-dims">
+                {image.width}×{image.height}
+              </span>
+            ) : null}
+            {imageLoading ? (
+              <Loader2 size={14} className="spin" aria-label="Cargando imagen" />
+            ) : null}
+            <div className="zoom-controls">
+              <button
+                type="button"
+                className="btn btn-icon btn-sm"
+                aria-label="Alejar"
+                onClick={() => stepZoom(-1)}
+              >
+                <ZoomOut size={14} />
+              </button>
+              <span className="zoom-value mono">{viewport.zoom}×</span>
+              <button
+                type="button"
+                className="btn btn-icon btn-sm"
+                aria-label="Acercar"
+                onClick={() => stepZoom(1)}
+              >
+                <ZoomIn size={14} />
+              </button>
+              <button type="button" className="btn btn-sm" onClick={() => fitViewport(image)}>
+                <Maximize size={13} /> Ajustar
+              </button>
+              <button
+                type="button"
+                className="btn btn-sm"
+                onClick={() => {
+                  if (!image) return;
+                  setViewport({
+                    zoom: 1,
+                    offset: centeredOffset(
+                      { width: image.width, height: image.height },
+                      stageSize,
+                      1,
+                    ),
+                  });
+                }}
+              >
+                100%
+              </button>
+              <button
+                type="button"
+                className="btn btn-icon btn-sm"
+                aria-label="Recargar imagen"
+                title="Recargar imagen"
+                onClick={reloadImage}
+              >
+                <RotateCcw size={14} />
               </button>
             </div>
-          ) : (
-            <PixelCanvas
-              image={image}
-              zoom={viewport.zoom}
-              offset={viewport.offset}
-              items={items}
-              drawPreview={drawRect}
-              cursor={drawMode ? 'crosshair' : cursorStyle}
-              onChangeViewport={(zoom, offset) => setViewport({ zoom, offset })}
-              onViewportResize={onViewportResize}
-              onPointer={handlePointer}
-            />
-          )}
-          {drawMode ? (
-            <div className="draw-hint">
-              <PencilRuler size={14} /> Arrastra para dibujar la región · Esc para cancelar
-            </div>
-          ) : null}
-        </div>
+          </header>
 
-        <footer className="board-footer">
-          <span className="side-hint">Rueda: zoom · Espacio o botón central: mover vista · Flechas: ajuste fino</span>
-          {imageLoading ? <span className="side-hint">Cargando imagen…</span> : null}
-        </footer>
-      </div>
+          <div
+            className="board-canvas"
+            tabIndex={0}
+            onKeyDown={(event) => {
+              const target = event.target as HTMLElement;
+              if (target.closest('input, textarea, select') !== null) return;
+              if (event.key === 'Escape') {
+                if (drawMode) {
+                  setDrawMode(false);
+                  setDrawRect(null);
+                }
+                dragRef.current = null;
+                return;
+              }
+              if (!draftRef.current) return;
+              const step = event.shiftKey ? 8 : 1;
+              if (event.key === 'ArrowLeft') nudge(-step, 0);
+              else if (event.key === 'ArrowRight') nudge(step, 0);
+              else if (event.key === 'ArrowUp') nudge(0, -step);
+              else if (event.key === 'ArrowDown') nudge(0, step);
+              else return;
+              event.preventDefault();
+            }}
+          >
+            {imageError ? (
+              <div className="board-image-error">
+                <ImageOff size={20} />
+                <p>{imageError}</p>
+                <button type="button" className="btn btn-sm" onClick={reloadImage}>
+                  Reintentar
+                </button>
+              </div>
+            ) : (
+              <PixelCanvas
+                image={image}
+                zoom={viewport.zoom}
+                offset={viewport.offset}
+                items={items}
+                drawPreview={drawRect}
+                cursor={drawMode ? 'crosshair' : cursorStyle}
+                onChangeViewport={(zoom, offset) => setViewport({ zoom, offset })}
+                onViewportResize={onViewportResize}
+                onPointer={handlePointer}
+              />
+            )}
+            {drawMode ? (
+              <div className="draw-hint">
+                <PencilRuler size={14} /> Arrastra para dibujar la región · Esc para cancelar
+              </div>
+            ) : null}
+          </div>
+
+          <footer className="board-footer">
+            <span className="side-hint">
+              Rueda: zoom · Espacio o botón central: mover vista · Flechas: ajuste fino
+            </span>
+            {imageLoading ? <span className="side-hint">Cargando imagen…</span> : null}
+          </footer>
+        </div>
       )}
 
       <aside className="board-sidebar">
@@ -685,7 +695,12 @@ function DuplicateSpriteDialog({ from, onClose, onSubmit }: DuplicateSpriteDialo
           <button type="button" className="btn" onClick={onClose} disabled={busy}>
             Cancelar
           </button>
-          <button type="button" className="btn btn-primary" onClick={() => void submit()} disabled={busy}>
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={() => void submit()}
+            disabled={busy}
+          >
             {busy ? 'Duplicando…' : 'Duplicar'}
           </button>
         </>

@@ -1,10 +1,6 @@
 import { useState } from 'react';
 import { ArrowDown, ArrowUp, Plus, X } from 'lucide-react';
-import {
-  PipelineError,
-  assertDuration,
-  assertIdentifier,
-} from '@assets-pipeline/core';
+import { PipelineError, assertDuration, assertIdentifier } from '@assets-pipeline/core';
 import type { SpriteDefinition } from '@assets-pipeline/core';
 import { Modal } from '../../components/Modal.js';
 import { Field } from '../../components/Field.js';
@@ -89,7 +85,12 @@ export function NewAnimationDialog({
           <button type="button" className="btn" onClick={onClose} disabled={busy}>
             Cancelar
           </button>
-          <button type="button" className="btn btn-primary" onClick={() => void submit()} disabled={busy}>
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={() => void submit()}
+            disabled={busy}
+          >
             {busy ? 'Creando…' : 'Crear animación'}
           </button>
         </>
@@ -126,7 +127,11 @@ export function NewAnimationDialog({
                 const sprite = sprites[spriteId]!;
                 return (
                   <li key={spriteId}>
-                    <button type="button" className="picker-item" onClick={() => appendFrame(spriteId)}>
+                    <button
+                      type="button"
+                      className="picker-item"
+                      onClick={() => appendFrame(spriteId)}
+                    >
                       <span className="mono">{spriteId}</span>
                       <span className="picker-meta">
                         {sprite.width}×{sprite.height}

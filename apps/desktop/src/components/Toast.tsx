@@ -51,7 +51,9 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               type="button"
               className="toast-close"
               aria-label="Cerrar aviso"
-              onClick={() => setEntries((current) => current.filter((item) => item.id !== entry.id))}
+              onClick={() =>
+                setEntries((current) => current.filter((item) => item.id !== entry.id))
+              }
             >
               ×
             </button>

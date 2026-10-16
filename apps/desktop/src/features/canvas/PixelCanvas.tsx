@@ -216,14 +216,11 @@ export function PixelCanvas({
     }
   }, [drawPreview, image, items, offset, size, zoom]);
 
-  const toImage = useCallback(
-    (event: React.PointerEvent<HTMLCanvasElement>): Point => {
-      const rect = event.currentTarget.getBoundingClientRect();
-      const screen = { x: event.clientX - rect.left, y: event.clientY - rect.top };
-      return screenToImage(screen, viewportRef.current.offset, viewportRef.current.zoom);
-    },
-    [],
-  );
+  const toImage = useCallback((event: React.PointerEvent<HTMLCanvasElement>): Point => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const screen = { x: event.clientX - rect.left, y: event.clientY - rect.top };
+    return screenToImage(screen, viewportRef.current.offset, viewportRef.current.zoom);
+  }, []);
 
   const handlePointerDown = (event: React.PointerEvent<HTMLCanvasElement>): void => {
     event.currentTarget.setPointerCapture(event.pointerId);
@@ -291,13 +288,15 @@ export function PixelCanvas({
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
-        onPointerLeave={() => onPointer('leave', {
-          image: { x: 0, y: 0 },
-          button: 0,
-          shift: false,
-          alt: false,
-          ctrl: false,
-        })}
+        onPointerLeave={() =>
+          onPointer('leave', {
+            image: { x: 0, y: 0 },
+            button: 0,
+            shift: false,
+            alt: false,
+            ctrl: false,
+          })
+        }
         onContextMenu={(event) => event.preventDefault()}
       />
     </div>
@@ -306,7 +305,5 @@ export function PixelCanvas({
 
 function isEditableTarget(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) return false;
-  return (
-    target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable
-  );
+  return target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
 }

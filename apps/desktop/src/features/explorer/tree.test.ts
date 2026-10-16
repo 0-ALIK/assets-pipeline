@@ -2,11 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { ListedFile } from '@assets-pipeline/core';
 import { ancestorDirectories, buildFileTree, childPath, fileName, parentPath } from './tree.js';
 
-function entry(
-  path: string,
-  kind: ListedFile['kind'],
-  status: ListedFile['status'],
-): ListedFile {
+function entry(path: string, kind: ListedFile['kind'], status: ListedFile['status']): ListedFile {
   return { path, kind, status };
 }
 

@@ -88,7 +88,13 @@ export function NewFolderDialog({ parent, onClose }: NewFolderDialogProps) {
 
   const submit = async (): Promise<void> => {
     setError(null);
-    if (name.trim() === '' || name.includes('/') || name.includes('\\') || name === '.' || name === '..') {
+    if (
+      name.trim() === '' ||
+      name.includes('/') ||
+      name.includes('\\') ||
+      name === '.' ||
+      name === '..'
+    ) {
       setError('Escribe un nombre de carpeta válido (sin barras).');
       return;
     }
@@ -112,13 +118,21 @@ export function NewFolderDialog({ parent, onClose }: NewFolderDialogProps) {
           <button type="button" className="btn" onClick={onClose} disabled={busy}>
             Cancelar
           </button>
-          <button type="button" className="btn btn-primary" onClick={() => void submit()} disabled={busy}>
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={() => void submit()}
+            disabled={busy}
+          >
             Crear
           </button>
         </>
       }
     >
-      <Field label="Nombre" hint={parent === '' ? 'Se creará en la raíz del repositorio.' : `Dentro de ${parent}/`}>
+      <Field
+        label="Nombre"
+        hint={parent === '' ? 'Se creará en la raíz del repositorio.' : `Dentro de ${parent}/`}
+      >
         <input
           className="input"
           value={name}
@@ -152,7 +166,13 @@ export function RenameDialog({ path, onClose }: RenameDialogProps) {
 
   const preview = async (): Promise<void> => {
     setError(null);
-    if (name.trim() === '' || name.includes('/') || name.includes('\\') || name === '.' || name === '..') {
+    if (
+      name.trim() === '' ||
+      name.includes('/') ||
+      name.includes('\\') ||
+      name === '.' ||
+      name === '..'
+    ) {
       setError('Escribe un nombre válido (sin barras).');
       return;
     }
@@ -194,11 +214,21 @@ export function RenameDialog({ path, onClose }: RenameDialogProps) {
             Cancelar
           </button>
           {plan ? (
-            <button type="button" className="btn btn-primary" onClick={() => void confirm()} disabled={busy}>
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => void confirm()}
+              disabled={busy}
+            >
               {busy ? 'Aplicando…' : 'Renombrar'}
             </button>
           ) : (
-            <button type="button" className="btn btn-primary" onClick={() => void preview()} disabled={busy}>
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => void preview()}
+              disabled={busy}
+            >
               {busy ? 'Comprobando…' : 'Continuar'}
             </button>
           )}
@@ -286,11 +316,21 @@ export function MoveDialog({ path, onClose }: MoveDialogProps) {
             Cancelar
           </button>
           {plan ? (
-            <button type="button" className="btn btn-primary" onClick={() => void confirm()} disabled={busy}>
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => void confirm()}
+              disabled={busy}
+            >
               {busy ? 'Aplicando…' : 'Mover'}
             </button>
           ) : (
-            <button type="button" className="btn btn-primary" onClick={() => void preview()} disabled={busy}>
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => void preview()}
+              disabled={busy}
+            >
               {busy ? 'Comprobando…' : 'Continuar'}
             </button>
           )}
