@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
+import { realpathSync } from 'node:fs';
 import { access, mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve, sep } from 'node:path';
@@ -590,5 +591,24 @@ test('build rejects empty animations and animations whose frames use different a
       '100',
     );
     fails(root, 'INVALID_INPUT', 'build');
+  });
+});
+
+test('open --print builds the deep link for the current repository', async () => {
+  await temporaryRepository(async (root) => {
+    succeeds(root, 'init', 'Open test');
+    const url = succeeds(root, 'open', '--print').trim();
+    const parsed = new URL(url);
+    assert.equal(parsed.protocol, 'assets-pipeline:');
+    assert.equal(parsed.host, 'open');
+    const repo = parsed.searchParams.get('repo');
+    assert.ok(repo, 'la URL debe incluir el parámetro repo');
+    assert.equal(realpathSync(repo).toLowerCase(), realpathSync(root).toLowerCase());
+  });
+});
+
+test('open --print without a repository links to the app launcher', async () => {
+  await temporaryRepository(async (root) => {
+    assert.equal(succeeds(root, 'open', '--print').trim(), 'assets-pipeline://open');
   });
 });
