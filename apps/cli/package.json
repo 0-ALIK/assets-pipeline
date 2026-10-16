@@ -7,14 +7,17 @@
     "assets-pipeline": "./dist/index.js"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
-    "start": "tsx src/index.ts",
-    "dev": "tsx watch src/index.ts"
+    "build": "pnpm --filter @assets-pipeline/core build && tsc -p tsconfig.json",
+    "typecheck": "pnpm --filter @assets-pipeline/core build && tsc -p tsconfig.json --noEmit",
+    "test": "node --test test/integration.test.mjs",
+    "start": "pnpm --filter @assets-pipeline/core build && tsx src/index.ts",
+    "dev": "pnpm --filter @assets-pipeline/core build && tsx watch src/index.ts"
   },
   "dependencies": {
     "@assets-pipeline/core": "workspace:*",
-    "commander": "^14.0.2"
+    "ase-parser": "^0.0.19",
+    "commander": "^14.0.2",
+    "sharp": "^0.35.5"
   },
   "devDependencies": {
     "@types/node": "^24.10.0",
