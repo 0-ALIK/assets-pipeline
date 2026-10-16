@@ -15,7 +15,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "pnpm --filter @assets-pipeline/core typecheck && pnpm --filter @assets-pipeline/cli typecheck && pnpm --filter @assets-pipeline/desktop typecheck",
-    "test": "pnpm --filter @assets-pipeline/core build && pnpm --filter @assets-pipeline/cli build && pnpm --filter @assets-pipeline/cli test",
+    "test": "pnpm --filter @assets-pipeline/core build && pnpm --filter @assets-pipeline/cli build && pnpm --filter @assets-pipeline/cli test && pnpm --filter @assets-pipeline/desktop test",
     "cli": "pnpm --filter @assets-pipeline/cli start"
   },
   "devDependencies": {
