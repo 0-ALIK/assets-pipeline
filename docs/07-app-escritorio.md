@@ -71,11 +71,50 @@ renderizan desde su primer frame con todas las capas visibles.
 Debajo de los sprites aparece la lista de animaciones del archivo. **Nueva** abre un editor para
 elegir sprites, orden y duración de cada frame y el modo `loop`/`once`. Al hacer clic en una
 animación, el canvas cambia al **reproductor**: dibuja cada frame anclando su pivote en el mismo
-punto, de modo que se ven de inmediato los saltos o desalineaciones. El reproductor permite
-pausar, reiniciar, saltar a un frame y volver al archivo.
+punto, de modo que se ven de inmediato los saltos o desalineaciones.
+
+El reproductor también es un **editor de frames**:
+
+- cada frame muestra su índice, su sprite, su duración editable (en milisegundos) y botones para
+  moverlo a izquierda/derecha, duplicarlo o eliminarlo (con confirmación; una animación no puede
+  quedarse sin frames);
+- **+ Frame** añade al final y el botón **+** de cada frame inserta uno antes, eligiendo el sprite
+  en un selector con la duración indicada;
+- en la cabecera puedes **renombrar** la animación (lápiz) y cambiar `loop`/`once` en cualquier
+  momento.
+
+### Pestaña Atlas
+
+La cabecera del proyecto cambia entre **Espacio de trabajo** (explorador, canvas y animaciones) y
+**Atlas**. La vista de atlas muestra:
+
+- la configuración de cada atlas (nombre, tamaño de página, `gap`) con edición inline, creación y
+  eliminación con confirmación;
+- los **grupos derivados** (primer segmento de cada ID) con su número de sprites y un selector para
+  asignarlos a un atlas o dejarlos sin asignar; los grupos sin atlas se destacan en ámbar, y los
+  grupos asignados que ya no existen se marcan como obsoletos;
+- una **comprobación** que ejecuta el mismo planificador del build y muestra las páginas que se
+  generarían (o el motivo exacto que impediría construir: grupo sin atlas, sprite que no cabe,
+  animación repartida entre atlas…).
+
+### Generar atlas desde la app
+
+El botón **Generar** de la cabecera abre el diálogo de build, disponible desde ambas pestañas:
+
+- resumen previo del plan (páginas, sprites, animaciones) o el error que lo bloquea;
+- carpeta de salida editable (por defecto `dist/assets`, como la CLI);
+- al construir se escriben las páginas PNG, el JSON de cada página y `index.json`, con las mismas
+  reglas que `assets-pipeline build`: la salida debe ser una subcarpeta real del repositorio, se
+  rechaza reemplazar una carpeta sin la marca `.assets-pipeline-build` y la publicación es atómica
+  (carpeta temporal y respaldo). Al terminar se listan los archivos y puedes abrir la carpeta.
+
+La disposición y la metadata son **idénticas** a las de la CLI porque ambas usan el plan de Core;
+la diferencia es que la app compone los `.aseprite` con `asefile` y respeta **todos** los modos de
+mezcla, mientras el build de la CLI rechaza los distintos de «normal».
 
 ### Cabecera del proyecto
 
+- **Generar**: abre el diálogo de build (ver arriba).
 - **Recargar**: vuelve a leer `db.json` y el listado (también se refresca automáticamente al
   recuperar el foco de la ventana, útil si la CLI modificó el repositorio).
 - **Validar**: ejecuta la misma validación que `assets-pipeline validate` y lista los problemas.
@@ -131,7 +170,7 @@ quedan en `apps/desktop/src-tauri/target/release/bundle/nsis/` y `.../msi/`.
 
 - Los Aseprite se muestran y validan por su **primer frame**; no hay selector de frames ni edición
   de capas.
-- No hay build desde la app: para generar atlas usa `assets-pipeline build`.
-- No hay deshacer/rehacer ni edición de frames de una animación ya creada (crear, reproducir,
-  cambiar playback y eliminar sí).
+- El build de la app no admite todavía `--clean` explícito (siempre reconstruye por completo,
+  como la CLI actual) ni reporta progreso por página.
+- No hay deshacer/rehacer en el editor de sprites ni en las operaciones de archivos.
 - Los enlaces simbólicos se listan pero no se administran, igual que en la CLI.

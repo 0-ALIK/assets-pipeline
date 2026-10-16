@@ -19,8 +19,9 @@ Desktop ───┘
 Core and CLI manage a local repository of PNG and Aseprite sources, sprite regions, animation
 sequences, atlas assignments, and deterministic PNG builds. The Desktop application is the visual
 workspace for the same repository: project launcher, file explorer with managed filesystem
-operations, a pixel-perfect board to edit sprites, and a pivot-anchored animation player.
-Watch mode is not implemented yet, and atlas builds run from the CLI.
+operations, a pixel-perfect board to edit sprites and animation frames, atlas configuration with
+group assignment, a pivot-anchored animation player, and the same deterministic build from its
+Generar dialog. Watch mode is not implemented yet.
 
 Running `assets-pipeline` with no arguments opens the desktop app on the repository of the current
 directory (or its launcher). See the [desktop app guide](docs/07-app-escritorio.md).
@@ -91,6 +92,7 @@ animations, or frames asks for confirmation and supports `--yes`.
 the source canvas. When atlas configuration exists, it also checks group coverage and capacity.
 It does not decode all pixels or verify PNG CRCs or every Aseprite chunk. `build` keeps every
 animation on one atlas page and generates PNG pages, one sprite/animation JSON beside each PNG,
-and the required global `index.json`. The desktop start screen displays its package version.
+and the required global `index.json`; the desktop app runs the same build from its Generar dialog.
+The desktop app displays its package version on the launcher.
 
 See the root and project `AGENTS.md` files for architecture and contribution conventions.

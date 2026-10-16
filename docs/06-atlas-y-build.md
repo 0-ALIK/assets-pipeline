@@ -112,6 +112,10 @@ assets-pipeline build --output generated/game-assets
 assets-pipeline build --clean
 ```
 
+La app de escritorio puede producir exactamente la misma salida desde su diálogo de build
+(pestaña **Atlas** o botón **Generar**): usa el mismo plan de Core y las mismas reglas de carpeta,
+marca y publicación atómica.
+
 La salida debe ser una subcarpeta real del repositorio, nunca la raíz, una ruta externa,
 `.assets-pipeline-cache` ni una ruta que atraviese enlaces simbólicos. La CLI marca las carpetas
 que genera y se niega a reemplazar una carpeta preexistente que no tenga esa marca. Publica la
