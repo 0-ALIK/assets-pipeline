@@ -16,6 +16,10 @@ import type { PointerInfo, PointerPhase } from './PixelCanvas.js';
 import { NewSpriteDialog } from './NewSpriteDialog.js';
 import { SpritePanel } from './SpritePanel.js';
 import type { SpriteDraft } from './SpritePanel.js';
+import { AnimationPanel } from './AnimationPanel.js';
+import { NewAnimationDialog } from './NewAnimationDialog.js';
+import type { AnimationFrameInput } from './NewAnimationDialog.js';
+import { AnimationPlayer } from '../preview/AnimationPlayer.js';
 import { useSourceImage } from './useSourceImage.js';
 import {
   centeredOffset,
@@ -59,6 +63,11 @@ export function BoardPanel({ root, path }: BoardPanelProps) {
     () => Object.keys(sprites).sort((left, right) => left.localeCompare(right)),
     [sprites],
   );
+  const animations = useMemo(() => source?.animations ?? {}, [source]);
+  const animationIds = useMemo(
+    () => Object.keys(animations).sort((left, right) => left.localeCompare(right)),
+    [animations],
+  );
   const { image, loading: imageLoading, error: imageError, reload: reloadImage } = useSourceImage(
     root,
     path,
@@ -77,6 +86,8 @@ export function BoardPanel({ root, path }: BoardPanelProps) {
   const [drawRect, setDrawRect] = useState<Rect | null>(null);
   const [newSprite, setNewSprite] = useState<{ rect: Rect | null } | null>(null);
   const [duplicateOf, setDuplicateOf] = useState<string | null>(null);
+  const [playingAnimationId, setPlayingAnimationId] = useState<string | null>(null);
+  const [newAnimationOpen, setNewAnimationOpen] = useState(false);
   const [stageSize, setStageSize] = useState({ width: 0, height: 0 });
 
   const stageSizeRef = useRef(stageSize);
@@ -90,6 +101,9 @@ export function BoardPanel({ root, path }: BoardPanelProps) {
   // effective selection from the current definitions.
   const activeSelectedId = selectedId && sprites[selectedId] ? selectedId : null;
   const bounds: CanvasBounds = { width: image?.width ?? 0, height: image?.height ?? 0 };
+  const activeAnimationId =
+    playingAnimationId && animations[playingAnimationId] ? playingAnimationId : null;
+  const activeAnimation = activeAnimationId ? animations[activeAnimationId] : undefined;
 
   const setDraftSync = useCallback((next: SpriteDraft | null) => {
     draftRef.current = next;
@@ -104,6 +118,8 @@ export function BoardPanel({ root, path }: BoardPanelProps) {
     setDrawRect(null);
     setNewSprite(null);
     setDuplicateOf(null);
+    setPlayingAnimationId(null);
+    setNewAnimationOpen(false);
     setCursor(null);
     setHoveredId(null);
   }, [path, setDraftSync]);
@@ -397,9 +413,55 @@ export function BoardPanel({ root, path }: BoardPanelProps) {
     return ok;
   };
 
+  const deleteAnimation = async (id: string): Promise<void> => {
+    const confirmed = await askConfirmation(
+      'Eliminar animación',
+      `Se eliminará la animación ${id}. Sus sprites no se tocan.`,
+    );
+    if (!confirmed) return;
+    const ok = await mutate((workspace) => workspace.removeAnimation(id));
+    if (ok && playingAnimationId === id) setPlayingAnimationId(null);
+  };
+
+  const togglePlayback = async (id: string): Promise<void> => {
+    const animation = animations[id];
+    if (!animation) return;
+    await mutate((workspace) =>
+      workspace.setAnimationPlayback(id, animation.playback === 'loop' ? 'once' : 'loop'),
+    );
+  };
+
+  const submitNewAnimation = async (
+    id: string,
+    playback: 'loop' | 'once',
+    frames: readonly AnimationFrameInput[],
+  ): Promise<boolean> => {
+    const ok = await mutate(async (workspace) => {
+      await workspace.addAnimation(path, id, playback);
+      for (const frame of frames) {
+        await workspace.addFrame(id, frame.sprite, frame.durationMs);
+      }
+    });
+    if (ok) {
+      toast.success(`Animación creada: ${id}`);
+      setPlayingAnimationId(id);
+    }
+    return ok;
+  };
+
   return (
     <div className="board-body">
-      <div className="board-stage">
+      {activeAnimation && activeAnimationId ? (
+        <AnimationPlayer
+          root={root}
+          path={path}
+          animationId={activeAnimationId}
+          animation={activeAnimation}
+          sprites={sprites}
+          onBack={() => setPlayingAnimationId(null)}
+        />
+      ) : (
+        <div className="board-stage">
         <header className="board-header">
           <span className="board-path mono" title={path}>
             {path}
@@ -513,6 +575,7 @@ export function BoardPanel({ root, path }: BoardPanelProps) {
           {imageLoading ? <span className="side-hint">Cargando imagen…</span> : null}
         </footer>
       </div>
+      )}
 
       <aside className="board-sidebar">
         <SpritePanel
@@ -533,6 +596,16 @@ export function BoardPanel({ root, path }: BoardPanelProps) {
           onNew={() => setNewSprite({ rect: null })}
           onDuplicate={(id) => setDuplicateOf(id)}
           onDelete={(id) => void deleteSprite(id)}
+        />
+        <AnimationPanel
+          animations={animations}
+          animationIds={animationIds}
+          activeId={activeAnimationId}
+          busy={busy}
+          onOpen={(id) => setPlayingAnimationId(id)}
+          onNew={() => setNewAnimationOpen(true)}
+          onDelete={(id) => void deleteAnimation(id)}
+          onTogglePlayback={(id) => void togglePlayback(id)}
         />
       </aside>
 
@@ -562,6 +635,15 @@ export function BoardPanel({ root, path }: BoardPanelProps) {
             }
             return ok;
           }}
+        />
+      ) : null}
+
+      {newAnimationOpen ? (
+        <NewAnimationDialog
+          sprites={sprites}
+          spriteIds={spriteIds}
+          onSubmit={submitNewAnimation}
+          onClose={() => setNewAnimationOpen(false)}
         />
       ) : null}
     </div>
