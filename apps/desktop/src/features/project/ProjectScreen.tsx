@@ -7,6 +7,7 @@ import { ArrowLeft, FolderOpen, RefreshCw, ShieldCheck } from 'lucide-react';
 import { RepositoryProvider, describeError, useRepository } from './repository-context.js';
 import { rememberProject } from './recents.js';
 import { ExplorerPanel } from '../explorer/ExplorerPanel.js';
+import { BoardPanel } from '../canvas/BoardPanel.js';
 
 interface ProjectScreenProps {
   readonly root: string;
@@ -107,11 +108,13 @@ function ProjectWorkspace({ onClose }: { onClose: () => void }) {
       <div className="project-body">
         <ExplorerPanel selectedPath={selectedPath} onSelect={setSelectedPath} />
         <section className="board" aria-label="Espacio de trabajo">
-          <EmptyState title={selectedPath ? selectedPath : 'Selecciona un archivo'}>
-            {selectedPath
-              ? 'El canvas pixel perfect se muestra aquí.'
-              : 'Elige un PNG o Aseprite en el explorador para verlo en el canvas pixel perfect.'}
-          </EmptyState>
+          {selectedPath ? (
+            <BoardPanel root={root} path={selectedPath} />
+          ) : (
+            <EmptyState title="Selecciona un archivo">
+              Elige un PNG o Aseprite en el explorador para verlo en el canvas pixel perfect.
+            </EmptyState>
+          )}
         </section>
       </div>
 
