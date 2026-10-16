@@ -17,14 +17,19 @@ Desktop ───┘
 ## Current scope
 
 Core and CLI manage a local repository of PNG and Aseprite sources, sprite regions, animation
-sequences, atlas assignments, and deterministic PNG builds. The Desktop application remains a
-startup shell. Watch mode is not implemented yet.
+sequences, atlas assignments, and deterministic PNG builds. The Desktop application is the visual
+workspace for the same repository: project launcher, file explorer with managed filesystem
+operations, a pixel-perfect board to edit sprites, and a pivot-anchored animation player.
+Watch mode is not implemented yet, and atlas builds run from the CLI.
+
+Running `assets-pipeline` with no arguments opens the desktop app on the repository of the current
+directory (or its launcher). See the [desktop app guide](docs/07-app-escritorio.md).
 
 The repository metadata lives in `.assets-pipeline-cache/db.json`. This file is the source of truth
 for user definitions, so keep it under backup or version control along with the source assets. The
 schema is versioned; the original scaffold schema is migrated in memory and its old records are
 preserved under `legacy` on the next write. The cache directory is reserved and cannot be managed
-with `fs` commands.
+with `fs` commands; the app and the CLI also share its lock while mutating.
 
 ## Requirements
 
@@ -47,6 +52,10 @@ the CLI discovers the root by searching from the current directory upward. Use `
 before a command to select another root. All paths in commands and in `db.json` are relative to that
 root and use `/` separators.
 Use the exact filename capitalization shown by the filesystem.
+
+Running `pnpm cli` (or the linked `assets-pipeline` executable) with no command opens the desktop
+app on the discovered repository; `assets-pipeline open --print` shows the deep link instead of
+launching it.
 
 ```sh
 pnpm cli ls

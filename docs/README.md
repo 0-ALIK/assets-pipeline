@@ -16,12 +16,14 @@ salidas para el motor. El comando `watch` no existe todavía.
    comprobaciones, códigos de error y uso no interactivo.
 6. [Grupos, atlas y build](06-atlas-y-build.md): grupos derivados, configuración, paginación,
    `gap`, `index.json` y el JSON de cada página.
+7. [La app de escritorio](07-app-escritorio.md): launcher de proyectos, explorador de archivos,
+   canvas pixel perfect, editor de sprites y reproductor de animaciones.
 
 ## Inventario de comandos
 
 | Grupo       | Comandos disponibles                                                                                       |
 | ----------- | ---------------------------------------------------------------------------------------------------------- |
-| General     | `version`, `init`, `info`, `status`, `ls`, `validate`, `help`                                              |
+| General     | `version`, `open`, `init`, `info`, `status`, `ls`, `validate`, `help`                                      |
 | Archivos    | `fs mkdir`, `fs rename`, `fs move`, `fs rm`                                                                |
 | Sprites     | `sprite list`, `sprite show`, `sprite add`, `sprite set`, `sprite rename`, `sprite duplicate`, `sprite rm` |
 | Animaciones | `animation add`, `animation show`, `animation set`, `animation rename`, `animation rm`                     |
