@@ -15,12 +15,19 @@
         "title": "Assets Pipeline",
         "width": 1280,
         "height": 800,
-        "minWidth": 800,
-        "minHeight": 600
+        "minWidth": 1024,
+        "minHeight": 640
       }
     ],
     "security": {
       "csp": null
+    }
+  },
+  "plugins": {
+    "deep-link": {
+      "desktop": {
+        "schemes": ["assets-pipeline"]
+      }
     }
   },
   "bundle": {
