@@ -433,6 +433,64 @@ export function BoardPanel({ root, path }: BoardPanelProps) {
     );
   };
 
+  const editSetPlayback = async (playback: 'loop' | 'once'): Promise<void> => {
+    if (!activeAnimationId) return;
+    await mutate(async (workspace) => {
+      await workspace.setAnimationPlayback(activeAnimationId, playback);
+    });
+  };
+
+  const editRenameAnimation = async (nextId: string): Promise<boolean> => {
+    if (!activeAnimationId) return false;
+    const ok = await mutate(async (workspace) => {
+      await workspace.renameAnimation(activeAnimationId, nextId);
+    });
+    if (ok) setPlayingAnimationId(nextId);
+    return ok;
+  };
+
+  const editAddFrame = async (sprite: string, durationMs: number, at?: number): Promise<void> => {
+    if (!activeAnimationId) return;
+    await mutate(async (workspace) => {
+      await workspace.addFrame(activeAnimationId, sprite, durationMs, at);
+    });
+  };
+
+  const editSetFrameDuration = async (at: number, durationMs: number): Promise<void> => {
+    if (!activeAnimationId) return;
+    await mutate(async (workspace) => {
+      await workspace.setFrame(activeAnimationId, at, undefined, durationMs);
+    });
+  };
+
+  const editMoveFrame = async (from: number, to: number): Promise<void> => {
+    if (!activeAnimationId) return;
+    await mutate(async (workspace) => {
+      await workspace.moveFrame(activeAnimationId, from, to);
+    });
+  };
+
+  const editDuplicateFrame = async (at: number): Promise<void> => {
+    const animation = activeAnimationId ? animations[activeAnimationId] : undefined;
+    const frame = animation?.frames[at];
+    if (!activeAnimationId || !frame) return;
+    await mutate(async (workspace) => {
+      await workspace.addFrame(activeAnimationId, frame.sprite, frame.durationMs, at + 1);
+    });
+  };
+
+  const editRemoveFrame = async (at: number): Promise<void> => {
+    if (!activeAnimationId) return;
+    const confirmed = await askConfirmation(
+      'Eliminar frame',
+      `Se eliminará el frame ${at} de ${activeAnimationId}.`,
+    );
+    if (!confirmed) return;
+    await mutate(async (workspace) => {
+      await workspace.removeFrame(activeAnimationId, at);
+    });
+  };
+
   const submitNewAnimation = async (
     id: string,
     playback: 'loop' | 'once',
@@ -460,7 +518,15 @@ export function BoardPanel({ root, path }: BoardPanelProps) {
           animationId={activeAnimationId}
           animation={activeAnimation}
           sprites={sprites}
+          busy={busy}
           onBack={() => setPlayingAnimationId(null)}
+          onRename={editRenameAnimation}
+          onSetPlayback={(playback) => void editSetPlayback(playback)}
+          onAddFrame={(sprite, durationMs, at) => void editAddFrame(sprite, durationMs, at)}
+          onSetFrameDuration={(at, durationMs) => void editSetFrameDuration(at, durationMs)}
+          onMoveFrame={(from, to) => void editMoveFrame(from, to)}
+          onDuplicateFrame={(at) => void editDuplicateFrame(at)}
+          onRemoveFrame={(at) => void editRemoveFrame(at)}
         />
       ) : (
         <div className="board-stage">

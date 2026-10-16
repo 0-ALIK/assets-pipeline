@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ArrowDown, ArrowUp, Plus, X } from 'lucide-react';
 import { PipelineError, assertDuration, assertIdentifier } from '@assets-pipeline/core';
 import type { SpriteDefinition } from '@assets-pipeline/core';
+import { moveItem } from '../preview/frame-sequence.js';
 import { Modal } from '../../components/Modal.js';
 import { Field } from '../../components/Field.js';
 
@@ -46,14 +47,7 @@ export function NewAnimationDialog({
   };
 
   const moveFrame = (index: number, direction: -1 | 1): void => {
-    setFrames((current) => {
-      const target = index + direction;
-      if (target < 0 || target >= current.length) return current;
-      const next = [...current];
-      const [frame] = next.splice(index, 1);
-      next.splice(target, 0, frame!);
-      return next;
-    });
+    setFrames((current) => moveItem(current, index, index + direction));
   };
 
   const submit = async (): Promise<void> => {

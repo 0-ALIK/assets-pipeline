@@ -1,7 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowLeft, Pause, Play, RotateCcw } from 'lucide-react';
+import { ArrowLeft, Pause, Pencil, Play, RotateCcw } from 'lucide-react';
 import type { AnimationDefinition, SpriteDefinition } from '@assets-pipeline/core';
 import { useSourceImage } from '../canvas/useSourceImage.js';
+import { AddFrameDialog } from './AddFrameDialog.js';
+import { FrameStrip } from './FrameStrip.js';
+import { RenameAnimationDialog } from './RenameAnimationDialog.js';
 import { findFrameAt, layoutAnimationFrames, totalDuration } from './pivot-math.js';
 
 interface AnimationPlayerProps {
@@ -10,7 +13,15 @@ interface AnimationPlayerProps {
   readonly animationId: string;
   readonly animation: AnimationDefinition;
   readonly sprites: Readonly<Record<string, SpriteDefinition>>;
+  readonly busy: boolean;
   readonly onBack: () => void;
+  readonly onRename: (id: string) => Promise<boolean>;
+  readonly onSetPlayback: (playback: 'loop' | 'once') => void;
+  readonly onAddFrame: (sprite: string, durationMs: number, at?: number) => void;
+  readonly onSetFrameDuration: (at: number, durationMs: number) => void;
+  readonly onMoveFrame: (from: number, to: number) => void;
+  readonly onDuplicateFrame: (at: number) => void;
+  readonly onRemoveFrame: (at: number) => void;
 }
 
 export function AnimationPlayer({
@@ -19,7 +30,15 @@ export function AnimationPlayer({
   animationId,
   animation,
   sprites,
+  busy,
   onBack,
+  onRename,
+  onSetPlayback,
+  onAddFrame,
+  onSetFrameDuration,
+  onMoveFrame,
+  onDuplicateFrame,
+  onRemoveFrame,
 }: AnimationPlayerProps) {
   const { image, error } = useSourceImage(root, path);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -28,10 +47,16 @@ export function AnimationPlayer({
   const [playing, setPlaying] = useState(true);
   const [frameIndex, setFrameIndex] = useState(0);
   const [crops, setCrops] = useState<ReadonlyMap<string, ImageBitmap>>(new Map());
+  const [renameOpen, setRenameOpen] = useState(false);
+  const [addTarget, setAddTarget] = useState<number | 'end' | null>(null);
   const elapsedRef = useRef(0);
   const indexRef = useRef(0);
 
   const frames = animation.frames;
+  const spriteIds = useMemo(
+    () => Object.keys(sprites).sort((left, right) => left.localeCompare(right)),
+    [sprites],
+  );
   const layout = useMemo(
     () =>
       layoutAnimationFrames(
@@ -129,6 +154,8 @@ export function AnimationPlayer({
     return () => cancelAnimationFrame(raf);
   }, [animation.playback, frames, playing]);
 
+  const safeIndex = Math.max(0, Math.min(frameIndex, frames.length - 1));
+
   // Redraw the composition whenever the frame, crops or size change.
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -143,7 +170,7 @@ export function AnimationPlayer({
     context.setTransform(dpr, 0, 0, dpr, 0, 0);
     context.clearRect(0, 0, size.width, size.height);
 
-    const frame = frames[Math.min(frameIndex, frames.length - 1)];
+    const frame = frames[safeIndex];
     if (!frame || layout.width === 0 || layout.height === 0) return;
     const zoom = Math.max(
       1,
@@ -154,7 +181,7 @@ export function AnimationPlayer({
     );
     const originX = Math.round((size.width - layout.width * zoom) / 2);
     const originY = Math.round((size.height - layout.height * zoom) / 2);
-    const offset = layout.offsets[Math.min(frameIndex, layout.offsets.length - 1)];
+    const offset = layout.offsets[safeIndex];
     const crop = crops.get(frame.sprite);
     if (crop && offset) {
       context.imageSmoothingEnabled = false;
@@ -178,7 +205,14 @@ export function AnimationPlayer({
     context.moveTo(pivotX, pivotY - 6);
     context.lineTo(pivotX, pivotY + 6);
     context.stroke();
-  }, [crops, frameIndex, frames, layout, size]);
+  }, [crops, frames, layout, safeIndex, size]);
+
+  const selectFrame = (index: number): void => {
+    elapsedRef.current = frames.slice(0, index).reduce((sum, item) => sum + item.durationMs, 0);
+    indexRef.current = index;
+    setFrameIndex(index);
+    setPlaying(false);
+  };
 
   const restart = (): void => {
     elapsedRef.current = 0;
@@ -186,6 +220,8 @@ export function AnimationPlayer({
     setFrameIndex(0);
     setPlaying(true);
   };
+
+  const defaultDuration = frames[frames.length - 1]?.durationMs ?? 100;
 
   return (
     <div className="player">
@@ -196,9 +232,29 @@ export function AnimationPlayer({
         <span className="player-title mono" title={animationId}>
           {animationId}
         </span>
+        <button
+          type="button"
+          className="btn btn-icon btn-sm"
+          title="Renombrar animación"
+          aria-label="Renombrar animación"
+          disabled={busy}
+          onClick={() => setRenameOpen(true)}
+        >
+          <Pencil size={13} />
+        </button>
         <span className="player-meta">
-          {animation.playback} · {frames.length} frames · {total} ms
+          {frames.length} frames · {total} ms
         </span>
+        <select
+          className="select player-playback"
+          value={animation.playback}
+          disabled={busy}
+          title="Modo de reproducción"
+          onChange={(event) => onSetPlayback(event.target.value === 'once' ? 'once' : 'loop')}
+        >
+          <option value="loop">loop</option>
+          <option value="once">once</option>
+        </select>
         <div className="player-controls">
           <button
             type="button"
@@ -227,32 +283,45 @@ export function AnimationPlayer({
         {error ? <p className="form-error">{error}</p> : null}
         <canvas ref={canvasRef} className="player-layer" />
         <div className="player-frame-label">
-          Frame {Math.min(frameIndex + 1, Math.max(frames.length, 1))}/{frames.length}
+          Frame {Math.min(safeIndex + 1, Math.max(frames.length, 1))}/{frames.length}
         </div>
       </div>
 
-      <footer className="player-strip" role="list">
-        {frames.map((frame, index) => (
-          <button
-            key={`${frame.sprite}-${index}`}
-            type="button"
-            role="listitem"
-            className={`strip-frame${index === frameIndex ? ' is-current' : ''}`}
-            onClick={() => {
-              elapsedRef.current = frames
-                .slice(0, index)
-                .reduce((sum, item) => sum + item.durationMs, 0);
-              indexRef.current = index;
-              setFrameIndex(index);
-              setPlaying(false);
-            }}
-          >
-            <span className="strip-index">{index}</span>
-            <span className="strip-sprite mono">{frame.sprite}</span>
-            <span className="strip-duration">{frame.durationMs} ms</span>
-          </button>
-        ))}
-      </footer>
+      <FrameStrip
+        frames={frames}
+        currentIndex={safeIndex}
+        busy={busy}
+        onSelect={selectFrame}
+        onDuration={(index, durationMs) => onSetFrameDuration(index, durationMs)}
+        onMove={(from, to) => onMoveFrame(from, to)}
+        onDuplicate={(index) => onDuplicateFrame(index)}
+        onRemove={(index) => onRemoveFrame(index)}
+        onInsertBefore={(index) => setAddTarget(index)}
+        onAppend={() => setAddTarget('end')}
+      />
+
+      {renameOpen ? (
+        <RenameAnimationDialog
+          currentId={animationId}
+          busy={busy}
+          onRename={onRename}
+          onClose={() => setRenameOpen(false)}
+        />
+      ) : null}
+
+      {addTarget !== null ? (
+        <AddFrameDialog
+          sprites={sprites}
+          spriteIds={spriteIds}
+          insertAt={addTarget === 'end' ? null : addTarget}
+          defaultDuration={defaultDuration}
+          busy={busy}
+          onPick={(sprite, durationMs) =>
+            onAddFrame(sprite, durationMs, addTarget === 'end' ? undefined : addTarget)
+          }
+          onClose={() => setAddTarget(null)}
+        />
+      ) : null}
     </div>
   );
 }

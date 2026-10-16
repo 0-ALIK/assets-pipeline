@@ -1528,7 +1528,8 @@ h1 {
 
 .player-strip {
   display: flex;
-  gap: 4px;
+  align-items: stretch;
+  gap: 6px;
   padding: 8px 10px;
   border-top: 1px solid var(--border);
   background: var(--bg-panel);
@@ -1537,15 +1538,13 @@ h1 {
 
 .strip-frame {
   display: grid;
-  gap: 1px;
-  min-width: 130px;
-  padding: 5px 9px;
+  gap: 4px;
+  min-width: 232px;
+  padding: 6px 8px;
   border-radius: 8px;
   border: 1px solid var(--border);
   background: var(--bg-elevated);
   color: inherit;
-  text-align: left;
-  cursor: pointer;
 }
 
 .strip-frame:hover {
@@ -1555,6 +1554,17 @@ h1 {
 .strip-frame.is-current {
   border-color: var(--accent-strong);
   background: #223028;
+}
+
+.strip-main {
+  display: grid;
+  gap: 1px;
+  padding: 0;
+  background: none;
+  border: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
 }
 
 .strip-index {
@@ -1569,9 +1579,56 @@ h1 {
   white-space: nowrap;
 }
 
-.strip-duration {
-  font-size: 10.5px;
-  color: var(--text-faint);
+.strip-controls {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.strip-duration-input {
+  width: 62px;
+  padding: 3px 6px;
+  font-size: 11.5px;
+}
+
+.strip-add {
+  flex: none;
+  min-width: 74px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px dashed var(--border-strong);
+  background: none;
+  color: var(--text-dim);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.strip-add:hover:not(:disabled) {
+  border-color: var(--accent-strong);
+  color: var(--accent);
+}
+
+.strip-add:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.player-playback {
+  width: 86px;
+  padding: 5px 8px;
+  font-size: 12px;
+}
+
+.picker-list-dialog {
+  max-height: 300px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-sunken);
+}
+
+.picker-add {
+  font-size: 11px;
+  color: var(--accent-strong);
 }
 
 @media (max-width: 520px) {
