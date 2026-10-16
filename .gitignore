@@ -24,3 +24,6 @@ coverage/
 *.lcov
 *.tsbuildinfo
 
+# Local scratch project used for manual testing
+proyecto-prueba/
+
