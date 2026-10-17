@@ -9,6 +9,11 @@ function checkedPlayback(value: string): 'loop' | 'once' {
   return value;
 }
 
+/** Validates a playback mode before any repository access. */
+export function assertPlayback(value: string): void {
+  checkedPlayback(value);
+}
+
 function checkedIndex(index: number, length: number, allowEnd = false): void {
   if (!Number.isInteger(index) || index < 0 || index > length - (allowEnd ? 0 : 1)) {
     throw new PipelineError('INVALID_INPUT', `Índice de frame fuera de rango: ${index}.`);

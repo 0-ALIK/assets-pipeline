@@ -3,20 +3,13 @@ import {
   assertAtlasGap,
   assertAtlasName,
   assertAtlasSize,
-  assertDuration,
   assertIdentifier,
   assertRectangle,
   assertSourcePath,
   isSupportedSource,
   groupFromIdentifier,
 } from '../domain/rules.js';
-import type {
-  AnimationFrame,
-  Pivot,
-  Rectangle,
-  RepositoryDatabase,
-  SourceDefinitions,
-} from '../domain/repository.js';
+import type { Pivot, Rectangle, RepositoryDatabase } from '../domain/repository.js';
 import { planAtlasBuild, type AtlasBuildPlan } from '../builders/packing/pack-atlases.js';
 import { validateRepositoryDatabase } from '../validation/repository-database.js';
 import type { UseCaseContext } from './context.js';
@@ -30,6 +23,15 @@ import type {
 } from './dto/repository-dto.js';
 import { readRepository } from './services/change-repository.js';
 import { initializeRepository } from './use-cases/project/initialize-repository.js';
+import { addAnimation as addAnimationUseCase } from './use-cases/animations/add-animation.js';
+import { removeAnimation as removeAnimationUseCase } from './use-cases/animations/remove-animation.js';
+import { renameAnimation as renameAnimationUseCase } from './use-cases/animations/rename-animation.js';
+import { setAnimationPlayback as setAnimationPlaybackUseCase } from './use-cases/animations/set-animation-playback.js';
+import { showAnimation as showAnimationUseCase } from './use-cases/animations/show-animation.js';
+import { addFrame as addFrameUseCase } from './use-cases/frames/add-frame.js';
+import { moveFrame as moveFrameUseCase } from './use-cases/frames/move-frame.js';
+import { removeFrame as removeFrameUseCase } from './use-cases/frames/remove-frame.js';
+import { setFrame as setFrameUseCase } from './use-cases/frames/set-frame.js';
 import { addSprite as addSpriteUseCase } from './use-cases/sprites/add-sprite.js';
 import { duplicateSprite as duplicateSpriteUseCase } from './use-cases/sprites/duplicate-sprite.js';
 import { listSprites as listSpritesUseCase } from './use-cases/sprites/list-sprites.js';
@@ -53,37 +55,6 @@ type MutableDatabase = { -readonly [Key in keyof RepositoryDatabase]: Repository
 
 function owned<T>(value: Readonly<Record<string, T>>, key: string): T | undefined {
   return Object.hasOwn(value, key) ? value[key] : undefined;
-}
-
-function findAnimation(database: RepositoryDatabase, id: string): AnimationLocation {
-  for (const [path, source] of Object.entries(database.sources)) {
-    const animation = owned(source.animations, id);
-    if (animation) return { path, id, animation };
-  }
-  throw new PipelineError('NOT_FOUND', `Animación no encontrada: ${id}`);
-}
-
-function hasAnimation(database: RepositoryDatabase, id: string): boolean {
-  return Object.values(database.sources).some((source) => Object.hasOwn(source.animations, id));
-}
-
-function sourceAt(database: RepositoryDatabase, path: string): SourceDefinitions {
-  const source = owned(database.sources, path);
-  if (!source) throw new PipelineError('NOT_FOUND', `Archivo sin definiciones: ${path}`);
-  return source;
-}
-
-function checkedPlayback(value: string): 'loop' | 'once' {
-  if (value !== 'loop' && value !== 'once') {
-    throw new PipelineError('INVALID_INPUT', 'La reproducción debe ser loop u once.');
-  }
-  return value;
-}
-
-function checkedIndex(index: number, length: number, allowEnd = false): void {
-  if (!Number.isInteger(index) || index < 0 || index > length - (allowEnd ? 0 : 1)) {
-    throw new PipelineError('INVALID_INPUT', `Índice de frame fuera de rango: ${index}.`);
-  }
 }
 
 function clone(database: RepositoryDatabase): MutableDatabase {
@@ -327,135 +298,49 @@ export class RepositoryWorkspace {
   }
 
   async showAnimation(id: string): Promise<AnimationLocation> {
-    return findAnimation(await this.read(), id);
+    return showAnimationUseCase(this.options, { id });
   }
 
   async addAnimation(path: string, id: string, playback: string): Promise<void> {
-    assertSourcePath(path);
-    assertIdentifier(id);
-    const mode = checkedPlayback(playback);
-    await this.change((database) => {
-      if (hasAnimation(database, id))
-        throw new PipelineError('ALREADY_EXISTS', `Animación existente: ${id}`);
-      const source = sourceAt(database, path);
-      database.sources = {
-        ...database.sources,
-        [path]: {
-          ...source,
-          animations: { ...source.animations, [id]: { playback: mode, frames: [] } },
-        },
-      };
-    });
+    await addAnimationUseCase(this.options, { path, id, playback });
   }
 
   async renameAnimation(from: string, to: string): Promise<void> {
-    assertIdentifier(to);
-    await this.change((database) => {
-      if (hasAnimation(database, to))
-        throw new PipelineError('ALREADY_EXISTS', `Animación existente: ${to}`);
-      const found = findAnimation(database, from);
-      const source = sourceAt(database, found.path);
-      const animations = { ...source.animations };
-      delete animations[from];
-      animations[to] = found.animation;
-      database.sources = { ...database.sources, [found.path]: { ...source, animations } };
-    });
+    await renameAnimationUseCase(this.options, { from, to });
   }
 
   async setAnimationPlayback(id: string, playback: string): Promise<void> {
-    const mode = checkedPlayback(playback);
-    await this.change((database) => {
-      const found = findAnimation(database, id);
-      const source = sourceAt(database, found.path);
-      database.sources = {
-        ...database.sources,
-        [found.path]: {
-          ...source,
-          animations: { ...source.animations, [id]: { ...found.animation, playback: mode } },
-        },
-      };
-    });
+    await setAnimationPlaybackUseCase(this.options, { id, playback });
   }
 
   async removeAnimation(id: string): Promise<void> {
-    await this.change((database) => {
-      const found = findAnimation(database, id);
-      const source = sourceAt(database, found.path);
-      const animations = { ...source.animations };
-      delete animations[id];
-      database.sources = { ...database.sources, [found.path]: { ...source, animations } };
-    });
-  }
-
-  private async updateFrames(
-    id: string,
-    update: (frames: AnimationFrame[], source: SourceDefinitions) => void,
-  ): Promise<void> {
-    await this.change((database) => {
-      const found = findAnimation(database, id);
-      const source = sourceAt(database, found.path);
-      const frames = [...found.animation.frames];
-      update(frames, source);
-      database.sources = {
-        ...database.sources,
-        [found.path]: {
-          ...source,
-          animations: { ...source.animations, [id]: { ...found.animation, frames } },
-        },
-      };
-    });
+    await removeAnimationUseCase(this.options, { id });
   }
 
   async addFrame(id: string, sprite: string, durationMs: number, at?: number): Promise<void> {
-    assertDuration(durationMs);
-    await this.updateFrames(id, (frames, source) => {
-      if (!Object.hasOwn(source.sprites, sprite)) {
-        throw new PipelineError(
-          'INVALID_INPUT',
-          `El sprite ${sprite} no pertenece al archivo de la animación.`,
-        );
-      }
-      const index = at ?? frames.length;
-      checkedIndex(index, frames.length, true);
-      frames.splice(index, 0, { sprite, durationMs });
+    await addFrameUseCase(this.options, {
+      animation: id,
+      sprite,
+      durationMs,
+      ...(at === undefined ? {} : { at }),
     });
   }
 
   async setFrame(id: string, at: number, sprite?: string, durationMs?: number): Promise<void> {
-    if (sprite === undefined && durationMs === undefined) {
-      throw new PipelineError('INVALID_INPUT', 'Indica --sprite o --duration.');
-    }
-    if (durationMs !== undefined) assertDuration(durationMs);
-    await this.updateFrames(id, (frames, source) => {
-      checkedIndex(at, frames.length);
-      if (sprite !== undefined && !Object.hasOwn(source.sprites, sprite)) {
-        throw new PipelineError(
-          'INVALID_INPUT',
-          `El sprite ${sprite} no pertenece al archivo de la animación.`,
-        );
-      }
-      const current = frames[at]!;
-      frames[at] = {
-        sprite: sprite ?? current.sprite,
-        durationMs: durationMs ?? current.durationMs,
-      };
+    await setFrameUseCase(this.options, {
+      animation: id,
+      at,
+      ...(sprite === undefined ? {} : { sprite }),
+      ...(durationMs === undefined ? {} : { durationMs }),
     });
   }
 
   async moveFrame(id: string, from: number, to: number): Promise<void> {
-    await this.updateFrames(id, (frames) => {
-      checkedIndex(from, frames.length);
-      checkedIndex(to, frames.length, true);
-      const [frame] = frames.splice(from, 1);
-      frames.splice(to, 0, frame!);
-    });
+    await moveFrameUseCase(this.options, { animation: id, from, to });
   }
 
   async removeFrame(id: string, at: number): Promise<void> {
-    await this.updateFrames(id, (frames) => {
-      checkedIndex(at, frames.length);
-      frames.splice(at, 1);
-    });
+    await removeFrameUseCase(this.options, { animation: id, at });
   }
 
   private async planPath(path: string, to?: string): Promise<PathChangePlan> {
