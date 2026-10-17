@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vite';
 
 const packageJsonUrl = new URL('./package.json', import.meta.url);
@@ -9,7 +10,12 @@ const packageJson = JSON.parse(readFileSync(fileURLToPath(packageJsonUrl), 'utf8
 };
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), tailwindcss()],
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+    },
+  },
   define: {
     __APP_VERSION__: JSON.stringify(packageJson.version),
   },
