@@ -40,7 +40,7 @@ pnpm --filter @assets-pipeline/desktop dev
 ### Explorador (panel izquierdo)
 
 Muestra todo el filesystem del repositorio. Los archivos con definiciones en `db.json` llevan un
-punto verde y contadores de sprites y animaciones; los archivos que siguen en `db.json` pero ya no
+punto claro y contadores de sprites y animaciones; los archivos que siguen en `db.json` pero ya no
 existen llevan un aviso. La carpeta interna y las carpetas de build generadas no se recorren.
 
 El menú de cada entrada (tres puntos) ofrece:
@@ -132,9 +132,9 @@ configuran con `components.json` y `src/lib/utils.ts`.
   `VT323` para IDs, rutas y datos monoespaciados.
 - **Iconos**: [pixelarticons](https://pixelarticons.com) (MIT) renderizados a 24×24 — múltiplo de la
   rejilla de 24 para que los píxeles queden cuadrados — usando import por icono.
-- **Tokens**: paleta verde existente (`#9bd79c` sobre `#151719`), sin radios de esquina, bordes de
+- **Tokens**: escala de grises neutra (`#e8e8e8` sobre `#161616`), sin radios de esquina, bordes de
   2px y sombras duras de 4px (`--pixel-box-shadow`). Los botones de Pixelact aportan su borde
-  interno y el desplazamiento al pulsar.
+  interno y el desplazamiento al pulsar; las selecciones usan un bloque claro con texto oscuro.
 - El registry original importa la fuente desde Google Fonts en runtime; en este repo esa línea se
   sustituyó por `@fontsource` para que la app funcione offline dentro de Tauri.
 
