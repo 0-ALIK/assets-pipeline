@@ -1,4 +1,6 @@
 import type { ReactNode } from 'react';
+import { Label } from './ui/pixelact-ui/label.js';
+import { Spinner as PixelSpinner } from './ui/pixelact-ui/spinner.js';
 
 interface FieldProps {
   readonly label: string;
@@ -8,18 +10,18 @@ interface FieldProps {
 
 export function Field({ label, hint, children }: FieldProps) {
   return (
-    <label className="field">
-      <span className="field-label">{label}</span>
+    <div className="field">
+      <Label className="field-label text-muted-foreground">{label}</Label>
       {children}
       {hint ? <span className="field-hint">{hint}</span> : null}
-    </label>
+    </div>
   );
 }
 
 export function Spinner({ label }: { label?: string }) {
   return (
     <div className="spinner-block">
-      <span className="spinner" aria-hidden="true" />
+      <PixelSpinner width={24} height={24} aria-hidden="true" />
       {label ? <span>{label}</span> : null}
     </div>
   );

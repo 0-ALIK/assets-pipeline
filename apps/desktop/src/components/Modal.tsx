@@ -1,5 +1,11 @@
-import { useEffect } from 'react';
-import type { CSSProperties, ReactNode } from 'react';
+import type { ReactNode } from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from './ui/pixelact-ui/dialog.js';
 
 interface ModalProps {
   readonly title: string;
@@ -10,33 +16,23 @@ interface ModalProps {
 }
 
 export function Modal({ title, onClose, children, footer, width }: ModalProps) {
-  useEffect(() => {
-    const handleKey = (event: KeyboardEvent): void => {
-      if (event.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', handleKey);
-    return () => window.removeEventListener('keydown', handleKey);
-  }, [onClose]);
-
-  const style: CSSProperties | undefined = width ? { width: `min(100%, ${width}px)` } : undefined;
-
   return (
-    <div
-      className="modal-backdrop"
-      onPointerDown={(event) => {
-        if (event.target === event.currentTarget) onClose();
+    <Dialog
+      open
+      onOpenChange={(open) => {
+        if (!open) onClose();
       }}
     >
-      <section className="modal" style={style} role="dialog" aria-modal="true" aria-label={title}>
-        <header className="modal-header">
-          <h2>{title}</h2>
-          <button type="button" className="btn btn-icon" aria-label="Cerrar" onClick={onClose}>
-            ×
-          </button>
-        </header>
-        <div className="modal-body">{children}</div>
-        {footer ? <footer className="modal-footer">{footer}</footer> : null}
-      </section>
-    </div>
+      <DialogContent
+        className="max-h-[88vh]"
+        style={width ? { maxWidth: `${width}px` } : undefined}
+      >
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+        </DialogHeader>
+        <div className="readable max-h-[62vh] overflow-auto pr-1">{children}</div>
+        {footer ? <DialogFooter className="gap-3 sm:justify-end">{footer}</DialogFooter> : null}
+      </DialogContent>
+    </Dialog>
   );
 }

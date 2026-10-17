@@ -46,7 +46,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       <div className="toast-stack" role="status" aria-live="polite">
         {entries.map((entry) => (
           <div key={entry.id} className={`toast toast-${entry.kind}`}>
-            <span>{entry.message}</span>
+            <span className="readable">{entry.message}</span>
             <button
               type="button"
               className="toast-close"

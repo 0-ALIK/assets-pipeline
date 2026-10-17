@@ -1,0 +1,54 @@
+import * as React from 'react';
+import { cva, type VariantProps } from 'class-variance-authority';
+import { cn } from '@/lib/utils';
+import { Button as ShadcnButton } from '@/components/ui/button';
+import '@/components/ui/pixelact-ui/styles/styles.css';
+import './button.css';
+
+const pixelButtonVariants = cva(
+  'pixel__button pixel-font cursor-pointer rounded-none w-fit items-center justify-center whitespace-nowrap transition-colors transition-all duration-100',
+  {
+    variants: {
+      variant: {
+        default: 'pixel-default__button box-shadow-margin bg-white text-black',
+        primary: 'pixel-primary__button box-shadow-margin',
+        secondary: 'pixel-secondary__button box-shadow-margin',
+        warning: 'pixel-warning__button box-shadow-margin',
+        success: 'pixel-success__button box-shadow-margin',
+        destructive: 'pixel-destructive__button box-shadow-margin',
+        ghost: 'pixel-ghost__button',
+        link: 'pixel-link__button bg-transparent text-link underline-offset-4 underline',
+      },
+      size: {
+        default: 'h-10 px-4 py-2 text-[11px]',
+        sm: 'h-9 px-3 text-[10px]',
+        lg: 'h-11 px-6 text-[13px]',
+        icon: 'h-10 w-10 p-0 text-[11px]',
+        'icon-sm': 'h-9 w-9 p-0 text-[10px]',
+      },
+    },
+    defaultVariants: {
+      variant: 'secondary',
+      size: 'default',
+    },
+  },
+);
+
+export interface PixelButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof pixelButtonVariants> {
+  asChild?: boolean;
+}
+
+const Button = React.forwardRef<React.ComponentRef<typeof ShadcnButton>, PixelButtonProps>(
+  ({ className, variant, size, ...props }, ref) => {
+    return (
+      <ShadcnButton
+        {...props}
+        className={cn(pixelButtonVariants({ variant, size }), className)}
+        ref={ref}
+      />
+    );
+  },
+);
+
+export { Button };
