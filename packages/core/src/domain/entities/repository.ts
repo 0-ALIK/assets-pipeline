@@ -338,6 +338,22 @@ export class Repository {
     this.record({ type: 'atlas.group-unassigned', atlas: atlasName, group });
   }
 
+  /** Follows a filesystem move: source keys change, definitions are preserved. */
+  relocateSources(moves: readonly { readonly from: string; readonly to: string }[]): void {
+    for (const move of moves) {
+      const source = this.sources.get(move.from);
+      if (!source) continue;
+      this.sources.delete(move.from);
+      source.relocate(move.to);
+      this.sources.set(move.to, source);
+    }
+  }
+
+  /** Drops the definitions of removed paths. */
+  removeSources(paths: readonly string[]): void {
+    for (const path of paths) this.sources.delete(path);
+  }
+
   touch(now: string): void {
     this.project = { ...this.project, updatedAt: now };
   }

@@ -21,14 +21,25 @@ function cloneSprite(rect: Rectangle, pivot: Pivot): SpriteDefinition {
 export class Source {
   private sprites: Record<string, SpriteDefinition>;
   private animations: Record<string, Animation>;
+  private pathValue: string;
 
   private constructor(
-    readonly path: string,
+    path: string,
     sprites: Record<string, SpriteDefinition>,
     animations: Record<string, Animation>,
   ) {
+    this.pathValue = path;
     this.sprites = sprites;
     this.animations = animations;
+  }
+
+  get path(): string {
+    return this.pathValue;
+  }
+
+  /** Follows a filesystem move; only meaningful inside a transaction. */
+  relocate(newPath: string): void {
+    this.pathValue = newPath;
   }
 
   static create(path: string): Source {
