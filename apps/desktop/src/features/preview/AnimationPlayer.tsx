@@ -209,7 +209,7 @@ export function AnimationPlayer({
     // Shared pivot marker so misaligned frames are easy to spot.
     const pivotX = originX + layout.pivot.x * zoom + 0.5;
     const pivotY = originY + layout.pivot.y * zoom + 0.5;
-    context.strokeStyle = 'rgba(242, 193, 78, 0.85)';
+    context.strokeStyle = 'rgba(255, 255, 255, 0.85)';
     context.lineWidth = 1;
     context.beginPath();
     context.moveTo(pivotX - 6, pivotY);

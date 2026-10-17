@@ -159,17 +159,17 @@ export function PixelCanvas({
     });
     for (const item of ordered) {
       if (item.selected) {
-        drawRect(item.rect, 'rgba(155, 215, 156, 0.95)', 2);
+        drawRect(item.rect, 'rgba(255, 255, 255, 0.95)', 2);
       } else if (item.hovered) {
-        drawRect(item.rect, 'rgba(221, 192, 122, 0.9)', 2);
+        drawRect(item.rect, 'rgba(255, 255, 255, 0.6)', 2);
       } else {
-        drawRect(item.rect, 'rgba(155, 215, 156, 0.35)', 1);
+        drawRect(item.rect, 'rgba(255, 255, 255, 0.3)', 1);
       }
     }
 
     if (drawPreview) {
       context.setLineDash([6, 4]);
-      drawRect(drawPreview, 'rgba(138, 182, 224, 0.95)', 2);
+      drawRect(drawPreview, 'rgba(255, 255, 255, 0.9)', 2);
       context.setLineDash([]);
     }
 
@@ -186,7 +186,7 @@ export function PixelCanvas({
         },
       ];
       context.fillStyle = '#f4f6f5';
-      context.strokeStyle = '#101312';
+      context.strokeStyle = '#121212';
       for (const corner of corners) {
         const x = offset.x + corner.x * zoom;
         const y = offset.y + corner.y * zoom;
@@ -201,7 +201,7 @@ export function PixelCanvas({
       if (selected.pivot) {
         const x = Math.round(offset.x + selected.pivot.x * zoom) + 0.5;
         const y = Math.round(offset.y + selected.pivot.y * zoom) + 0.5;
-        context.strokeStyle = '#f2c14e';
+        context.strokeStyle = '#ffffff';
         context.lineWidth = 1.5;
         context.beginPath();
         context.moveTo(x - 7, y);

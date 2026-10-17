@@ -42,46 +42,44 @@
 
 :root,
 .dark {
-  --background: #151719;
-  --foreground: #e7e9e8;
-  --card: #1b1e1f;
-  --card-foreground: #e7e9e8;
-  --popover: #1b1e1f;
-  --popover-foreground: #e7e9e8;
-  --primary: #9bd79c;
-  --primary-foreground: #101312;
-  --secondary: #232827;
-  --secondary-foreground: #e7e9e8;
-  --muted: #202525;
-  --muted-foreground: #a7adab;
-  --accent: #263029;
-  --accent-foreground: #9bd79c;
-  --destructive: #c96060;
-  --destructive-foreground: #180d0d;
-  --border: #3a4141;
-  --input: #3a4141;
-  --ring: #3f4645;
-  --success: #6aa876;
-  --success-foreground: #101312;
-  --warning: #ddc07a;
-  --warning-foreground: #211a0c;
-  --info: #8ab6e0;
-  --link: #9bd79c;
+  --background: #161616;
+  --foreground: #e8e8e8;
+  --card: #1d1d1d;
+  --card-foreground: #e8e8e8;
+  --popover: #1d1d1d;
+  --popover-foreground: #e8e8e8;
+  --primary: #e8e8e8;
+  --primary-foreground: #121212;
+  --secondary: #262626;
+  --secondary-foreground: #e8e8e8;
+  --muted: #232323;
+  --muted-foreground: #a9a9a9;
+  --accent: #2c2c2c;
+  --accent-foreground: #eaeaea;
+  --destructive: #cfcfcf;
+  --destructive-foreground: #141414;
+  --border: #3d3d3d;
+  --input: #3d3d3d;
+  --ring: #4a4a4a;
+  --success: #c9c9c9;
+  --success-foreground: #121212;
+  --warning: #d9d9d9;
+  --warning-foreground: #121212;
+  --info: #a5a5a5;
+  --link: #e8e8e8;
 
-  --bg: #151719;
-  --bg-elevated: #1b1e1f;
-  --bg-panel: #171a1b;
-  --bg-sunken: #121414;
-  --border-strong: #3a4141;
-  --text: #e7e9e8;
-  --text-dim: #a7adab;
-  --text-faint: #8a918e;
-  --accent: #9bd79c;
-  --accent-strong: #6aa876;
-  --accent-contrast: #101312;
-  --danger: #e08585;
-  --warning: #ddc07a;
-  --info: #8ab6e0;
+  --bg: #161616;
+  --bg-elevated: #1d1d1d;
+  --bg-panel: #191919;
+  --bg-sunken: #121212;
+  --border-strong: #3d3d3d;
+  --text: #e8e8e8;
+  --text-dim: #a9a9a9;
+  --text-faint: #8f8f8f;
+  --highlight: #dcdcdc;
+  --highlight-foreground: #131313;
+  --accent-strong: #9a9a9a;
+  --danger: #e0e0e0;
   --mono: var(--font-mono);
   --pixel-shadow: 4px 4px 0 0 rgb(0 0 0 / 55%);
 }
@@ -133,7 +131,7 @@
   }
 
   code {
-    background: #232827;
+    background: #262626;
     padding: 0 5px;
     border: 1px solid var(--border);
   }
@@ -153,12 +151,12 @@
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: #4a5250;
+    background: #565656;
   }
 
   ::selection {
-    background: var(--accent-strong);
-    color: #101312;
+    background: var(--highlight);
+    color: #121212;
   }
 }
 
@@ -354,17 +352,17 @@
   }
 
   .brand-mark span {
-    background: #9bd79c;
+    background: #e8e8e8;
   }
 
   .brand-mark span:nth-child(2),
   .brand-mark span:nth-child(3) {
-    background: #6aa876;
+    background: #a9a9a9;
   }
 
   .eyebrow {
     margin: 28px 0 10px;
-    color: var(--accent);
+    color: var(--text-dim);
     font-family: var(--font-pixel);
     font-size: 10px;
     letter-spacing: 0.14em;
@@ -589,7 +587,7 @@
   }
 
   .project-stats .stat strong {
-    color: var(--accent);
+    color: var(--text);
     font-weight: 400;
   }
 
@@ -619,7 +617,7 @@
     flex-direction: column;
     min-width: 0;
     overflow: hidden;
-    background: #141617;
+    background: #171717;
   }
 
   .explorer-placeholder {
@@ -668,8 +666,8 @@
   }
 
   .view-tab.is-active {
-    background: var(--accent-strong);
-    color: var(--accent-contrast);
+    background: var(--highlight);
+    color: var(--highlight-foreground);
   }
 
   /* ---------- Explorer ---------- */
@@ -713,12 +711,12 @@
   }
 
   .tree-row:hover {
-    background: #1d2222;
+    background: #232323;
   }
 
   .tree-row.is-selected {
-    background: var(--accent);
-    color: var(--accent-contrast);
+    background: var(--highlight);
+    color: var(--highlight-foreground);
   }
 
   .tree-row.is-missing .tree-label {
@@ -753,7 +751,7 @@
 
   .tree-row.is-selected .tree-icon,
   .tree-row.is-selected .tree-toggle {
-    color: var(--accent-contrast);
+    color: var(--highlight-foreground);
   }
 
   .tree-label {
@@ -776,11 +774,11 @@
     width: 8px;
     height: 8px;
     margin: 0 4px;
-    background: var(--accent-strong);
+    background: var(--highlight);
   }
 
   .tree-row.is-selected .def-dot {
-    background: var(--accent-contrast);
+    background: var(--highlight-foreground);
   }
 
   .count-badge {
@@ -832,7 +830,7 @@
   }
 
   .tree-row.is-selected .tree-more {
-    color: var(--accent-contrast);
+    color: var(--highlight-foreground);
   }
 
   .explorer-legend {
@@ -900,8 +898,8 @@
   .plan-warning {
     margin: 0 0 14px;
     padding: 10px 12px;
-    background: rgb(221 192 122 / 10%);
-    border: 2px dashed rgb(221 192 122 / 60%);
+    background: rgb(255 255 255 / 10%);
+    border: 2px dashed rgb(255 255 255 / 60%);
     color: var(--warning);
     font-size: 13.5px;
     line-height: 1.6;
@@ -974,10 +972,10 @@
     position: absolute;
     inset: 0;
     overflow: hidden;
-    background-color: #16191a;
+    background-color: #171717;
     background-image:
-      linear-gradient(45deg, #1e2223 25%, transparent 25%, transparent 75%, #1e2223 75%),
-      linear-gradient(45deg, #1e2223 25%, transparent 25%, transparent 75%, #1e2223 75%);
+      linear-gradient(45deg, #1f1f1f 25%, transparent 25%, transparent 75%, #1f1f1f 75%),
+      linear-gradient(45deg, #1f1f1f 25%, transparent 25%, transparent 75%, #1f1f1f 75%);
     background-position:
       0 0,
       8px 8px;
@@ -1123,14 +1121,14 @@
 
   .sprite-item.is-hovered,
   .animation-item.is-hovered {
-    background: #1d2222;
+    background: #232323;
   }
 
   .sprite-item.is-selected,
   .animation-item.is-selected {
-    background: var(--accent);
-    border-color: var(--accent-strong);
-    color: var(--accent-contrast);
+    background: var(--highlight);
+    border-color: var(--highlight);
+    color: var(--highlight-foreground);
   }
 
   .sprite-main,
@@ -1167,7 +1165,7 @@
 
   .sprite-item.is-selected .sprite-meta,
   .animation-item.is-selected .animation-meta {
-    color: #2a3f2e;
+    color: #4a4a4a;
   }
 
   .sprite-actions,
@@ -1284,7 +1282,7 @@
   }
 
   .picker-item:hover {
-    background: #1d2222;
+    background: #232323;
   }
 
   .picker-item:disabled {
@@ -1406,10 +1404,10 @@
     flex: 1;
     min-height: 0;
     overflow: hidden;
-    background-color: #16191a;
+    background-color: #171717;
     background-image:
-      linear-gradient(45deg, #1e2223 25%, transparent 25%, transparent 75%, #1e2223 75%),
-      linear-gradient(45deg, #1e2223 25%, transparent 25%, transparent 75%, #1e2223 75%);
+      linear-gradient(45deg, #1f1f1f 25%, transparent 25%, transparent 75%, #1f1f1f 75%),
+      linear-gradient(45deg, #1f1f1f 25%, transparent 25%, transparent 75%, #1f1f1f 75%);
     background-position:
       0 0,
       8px 8px;
@@ -1461,9 +1459,9 @@
   }
 
   .strip-frame.is-current {
-    border-color: var(--accent-strong);
-    background: var(--accent);
-    color: var(--accent-contrast);
+    border-color: var(--highlight);
+    background: var(--highlight);
+    color: var(--highlight-foreground);
   }
 
   .strip-main {
@@ -1484,7 +1482,7 @@
   }
 
   .strip-frame.is-current .strip-index {
-    color: #2a3f2e;
+    color: #4a4a4a;
   }
 
   .strip-sprite {
@@ -1518,7 +1516,7 @@
 
   .strip-add:hover:not(:disabled) {
     border-color: var(--accent-strong);
-    color: var(--accent);
+    color: var(--text);
   }
 
   .strip-add:disabled {
@@ -1606,7 +1604,7 @@
     margin: 0;
     font-family: var(--font-pixel);
     font-size: 12px;
-    color: var(--accent);
+    color: var(--text);
   }
 
   .atlas-card-meta {
@@ -1641,16 +1639,16 @@
     align-items: center;
     gap: 6px;
     padding: 3px 10px;
-    border: 2px solid var(--accent-strong);
-    background: var(--accent);
-    color: var(--accent-contrast);
+    border: 2px solid #4a4a4a;
+    background: #2c2c2c;
+    color: #e8e8e8;
     font-family: var(--font-mono);
     font-size: 15px;
   }
 
   .group-chip.is-stale {
-    border-color: rgb(221 192 122 / 70%);
-    background: rgb(221 192 122 / 12%);
+    border-color: rgb(255 255 255 / 70%);
+    background: rgb(255 255 255 / 12%);
     color: var(--warning);
   }
 
@@ -1678,7 +1676,7 @@
   }
 
   .group-row.is-unassigned {
-    border-color: rgb(221 192 122 / 60%);
+    border-color: rgb(255 255 255 / 60%);
   }
 
   .group-name {
@@ -1729,7 +1727,7 @@
   }
 
   .plan-check.is-error {
-    border-color: rgb(221 192 122 / 60%);
+    border-color: rgb(255 255 255 / 60%);
     color: var(--warning);
   }
 
@@ -1816,7 +1814,7 @@
   }
 
   .toast-success::before {
-    background: var(--accent-strong);
+    background: var(--highlight);
   }
 
   .toast-error::before {
