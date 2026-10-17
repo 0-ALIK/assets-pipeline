@@ -142,6 +142,21 @@ Para añadir un componente nuevo: `npx shadcn@latest add https://pixelactui.com/
 dentro de `apps/desktop` (si la web limita peticiones, el mismo archivo está en el
 [repo del proyecto](https://github.com/pixelact-ui/pixelact-ui)).
 
+### Icono de la aplicación
+
+La fuente es `apps/desktop/assets-pipeline-logo.png`. Para cambiarlo:
+
+1. Regenera el set: `pnpm --filter @assets-pipeline/desktop exec tauri icon <ruta-al-png>`
+   (si el origen es pixel art pequeño, escálalo antes con vecino más cercano para que no se
+   emborrone) y borra `src-tauri/icons/android` y `src-tauri/icons/ios`.
+2. Recompila e instala: `pnpm --filter @assets-pipeline/desktop tauri build` + el instalador.
+
+`src-tauri/build.rs` declara `icons/icon.ico`, `icons/icon.icns` y `icons/icon.png` como entradas
+del build script; sin esas líneas Cargo reutiliza el **recurso de Windows cacheado** y el
+ejecutable conserva el icono anterior aunque el resto del build se regenere. Si alguna vez el
+icono sigue sin cambiar, borra `src-tauri/target/release/build/assets-pipeline-desktop-*` y
+vuelve a compilar; después refresca la caché de Windows con `ie4uinit.exe -show`.
+
 ## Abrir la app desde la CLI
 
 ```sh
