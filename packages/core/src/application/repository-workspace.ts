@@ -24,7 +24,7 @@ import type {
 import { planAtlasBuild, type AtlasBuildPlan } from '../builders/packing/pack-atlases.js';
 import type { FileEntry, ManagedFiles } from '../ports/managed-files.js';
 import type { RepositoryStore } from '../ports/repository-store.js';
-import { validateRepositoryDatabase } from './validate-repository-database.js';
+import { validateRepositoryDatabase } from '../validation/repository-database.js';
 
 export interface WorkspaceOptions {
   readonly store: RepositoryStore;
