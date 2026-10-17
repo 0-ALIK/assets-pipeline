@@ -185,7 +185,7 @@ export function PixelCanvas({
           y: selected.rect.y + selected.rect.height,
         },
       ];
-      context.fillStyle = '#f4f6f5';
+      context.fillStyle = '#ffffff';
       context.strokeStyle = '#121212';
       for (const corner of corners) {
         const x = offset.x + corner.x * zoom;
