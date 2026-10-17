@@ -120,6 +120,28 @@ mezcla, mientras el build de la CLI rechaza los distintos de «normal».
 - **Validar**: ejecuta la misma validación que `assets-pipeline validate` y lista los problemas.
 - **Carpeta**: abre la raíz del repositorio en el explorador del sistema.
 
+## Diseño de la interfaz (pixel art)
+
+La interfaz usa un design system pixel art sobre **Tailwind CSS 4** y componentes de
+[Pixelact UI](https://pixelactui.com) (registry de shadcn/ui, MIT) copiados en
+`src/components/ui/pixelact-ui/`; los archivos base de shadcn viven en `src/components/ui/` y se
+configuran con `components.json` y `src/lib/utils.ts`.
+
+- **Fuentes** (vendoreadas con `@fontsource`, sin red en ejecución):
+  `Press Start 2P` para títulos, botones y badges; `Pixelify Sans` para texto y formularios;
+  `VT323` para IDs, rutas y datos monoespaciados.
+- **Iconos**: [pixelarticons](https://pixelarticons.com) (MIT) renderizados a 24×24 — múltiplo de la
+  rejilla de 24 para que los píxeles queden cuadrados — usando import por icono.
+- **Tokens**: paleta verde existente (`#9bd79c` sobre `#151719`), sin radios de esquina, bordes de
+  2px y sombras duras de 4px (`--pixel-box-shadow`). Los botones de Pixelact aportan su borde
+  interno y el desplazamiento al pulsar.
+- El registry original importa la fuente desde Google Fonts en runtime; en este repo esa línea se
+  sustituyó por `@fontsource` para que la app funcione offline dentro de Tauri.
+
+Para añadir un componente nuevo: `npx shadcn@latest add https://pixelactui.com/r/<nombre>.json`
+dentro de `apps/desktop` (si la web limita peticiones, el mismo archivo está en el
+[repo del proyecto](https://github.com/pixelact-ui/pixelact-ui)).
+
 ## Abrir la app desde la CLI
 
 ```sh
