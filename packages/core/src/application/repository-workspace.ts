@@ -5,80 +5,54 @@ import {
   assertAtlasSize,
   assertDuration,
   assertIdentifier,
-  assertPivot,
   assertRectangle,
   assertSourcePath,
   isSupportedSource,
   groupFromIdentifier,
 } from '../domain/rules.js';
 import type {
-  AnimationDefinition,
-  AtlasDefinition,
   AnimationFrame,
   Pivot,
   Rectangle,
   RepositoryDatabase,
   SourceDefinitions,
-  SpriteDefinition,
 } from '../domain/repository.js';
 import { planAtlasBuild, type AtlasBuildPlan } from '../builders/packing/pack-atlases.js';
-import type { FileEntry, ManagedFiles } from '../ports/managed-files.js';
-import type { RepositoryStore } from '../ports/repository-store.js';
 import { validateRepositoryDatabase } from '../validation/repository-database.js';
+import type { UseCaseContext } from './context.js';
+import type {
+  AnimationLocation,
+  AtlasSummary,
+  GroupSummary,
+  ListedFile,
+  PathChangePlan,
+  SpriteLocation,
+} from './dto/repository-dto.js';
+import { readRepository } from './services/change-repository.js';
+import { initializeRepository } from './use-cases/project/initialize-repository.js';
+import { addSprite as addSpriteUseCase } from './use-cases/sprites/add-sprite.js';
+import { duplicateSprite as duplicateSpriteUseCase } from './use-cases/sprites/duplicate-sprite.js';
+import { listSprites as listSpritesUseCase } from './use-cases/sprites/list-sprites.js';
+import { removeSprite as removeSpriteUseCase } from './use-cases/sprites/remove-sprite.js';
+import { renameSprite as renameSpriteUseCase } from './use-cases/sprites/rename-sprite.js';
+import { setSprite as setSpriteUseCase } from './use-cases/sprites/set-sprite.js';
+import { showSprite as showSpriteUseCase } from './use-cases/sprites/show-sprite.js';
 
-export interface WorkspaceOptions {
-  readonly store: RepositoryStore;
-  readonly files: ManagedFiles;
-  readonly now: () => string;
-}
+export type {
+  AnimationLocation,
+  AtlasSummary,
+  GroupSummary,
+  ListedFile,
+  PathChangePlan,
+  SpriteLocation,
+};
 
-export interface SpriteLocation {
-  readonly path: string;
-  readonly id: string;
-  readonly sprite: SpriteDefinition;
-}
-
-export interface AnimationLocation {
-  readonly path: string;
-  readonly id: string;
-  readonly animation: AnimationDefinition;
-}
-
-export interface ListedFile extends FileEntry {
-  readonly status: 'defined' | 'undefined' | 'other' | 'missing';
-}
-
-export interface PathChangePlan {
-  readonly from: string;
-  readonly to?: string;
-  readonly kind: 'file' | 'directory';
-  readonly definitions: readonly string[];
-  readonly files: readonly string[];
-  readonly directoriesToCreate: readonly string[];
-}
-
-export interface GroupSummary {
-  readonly name: string;
-  readonly spriteIds: readonly string[];
-}
-
-export interface AtlasSummary {
-  readonly name: string;
-  readonly atlas: AtlasDefinition;
-}
+export type WorkspaceOptions = UseCaseContext;
 
 type MutableDatabase = { -readonly [Key in keyof RepositoryDatabase]: RepositoryDatabase[Key] };
 
 function owned<T>(value: Readonly<Record<string, T>>, key: string): T | undefined {
   return Object.hasOwn(value, key) ? value[key] : undefined;
-}
-
-function findSprite(database: RepositoryDatabase, id: string): SpriteLocation {
-  for (const [path, source] of Object.entries(database.sources)) {
-    const sprite = owned(source.sprites, id);
-    if (sprite) return { path, id, sprite };
-  }
-  throw new PipelineError('NOT_FOUND', `Sprite no encontrado: ${id}`);
 }
 
 function findAnimation(database: RepositoryDatabase, id: string): AnimationLocation {
@@ -87,10 +61,6 @@ function findAnimation(database: RepositoryDatabase, id: string): AnimationLocat
     if (animation) return { path, id, animation };
   }
   throw new PipelineError('NOT_FOUND', `Animación no encontrada: ${id}`);
-}
-
-function hasSprite(database: RepositoryDatabase, id: string): boolean {
-  return Object.values(database.sources).some((source) => Object.hasOwn(source.sprites, id));
 }
 
 function hasAnimation(database: RepositoryDatabase, id: string): boolean {
@@ -125,28 +95,12 @@ export class RepositoryWorkspace {
 
   /** Creates a new versioned repository. Fails if one already exists. */
   async initialize(name: string, id: string): Promise<RepositoryDatabase> {
-    if (name.trim() === '' || id.trim() === '') {
-      throw new PipelineError('INVALID_INPUT', 'El nombre y el ID del proyecto son obligatorios.');
-    }
-    if (await this.options.store.read()) {
-      throw new PipelineError('ALREADY_EXISTS', 'Ya existe un repositorio en esta carpeta.');
-    }
-    const now = this.options.now();
-    const database: RepositoryDatabase = {
-      schemaVersion: 4,
-      project: { id, name: name.trim(), createdAt: now, updatedAt: now },
-      sources: {},
-      atlases: {},
-    };
-    await this.options.store.write(database);
-    return database;
+    return initializeRepository(this.options, { name, id });
   }
 
   /** Returns validated data. Version 1 is migrated in memory on read. */
   async read(): Promise<RepositoryDatabase> {
-    const database = await this.options.store.read();
-    if (!database) throw new PipelineError('NOT_FOUND', 'No se encontró db.json del repositorio.');
-    return database;
+    return (await readRepository(this.options)).toJSON();
   }
 
   private async change(action: (database: MutableDatabase) => Promise<void> | void): Promise<void> {
@@ -341,118 +295,35 @@ export class RepositoryWorkspace {
   }
 
   async listSprites(path: string): Promise<readonly SpriteLocation[]> {
-    assertSourcePath(path);
-    if (!isSupportedSource(path))
-      throw new PipelineError('INVALID_INPUT', 'Solo se admiten PNG y Aseprite.');
-    const source = owned((await this.read()).sources, path);
-    if (!source) return [];
-    return Object.entries(source.sprites).map(([id, sprite]) => ({ path, id, sprite }));
+    return listSpritesUseCase(this.options, { path });
   }
 
   async showSprite(id: string): Promise<SpriteLocation> {
-    return findSprite(await this.read(), id);
+    return showSpriteUseCase(this.options, { id });
   }
 
   async addSprite(path: string, id: string, rect: Rectangle, pivot: Pivot): Promise<void> {
-    assertSourcePath(path);
-    assertIdentifier(id);
-    if (!isSupportedSource(path))
-      throw new PipelineError('INVALID_INPUT', 'Solo se admiten PNG y Aseprite.');
-    assertPivot(pivot);
-    const size = await this.options.files.imageSize(path);
-    assertRectangle(rect, size.width, size.height);
-    await this.change((database) => {
-      if (hasSprite(database, id))
-        throw new PipelineError('ALREADY_EXISTS', `Sprite existente: ${id}`);
-      const source = owned(database.sources, path) ?? { sprites: {}, animations: {} };
-      database.sources = {
-        ...database.sources,
-        [path]: { ...source, sprites: { ...source.sprites, [id]: { ...rect, pivot } } },
-      };
-    });
+    await addSpriteUseCase(this.options, { path, id, rect, pivot });
   }
 
   async setSprite(id: string, rect?: Rectangle, pivot?: Pivot): Promise<void> {
-    if (!rect && !pivot) throw new PipelineError('INVALID_INPUT', 'Indica --rect o --pivot.');
-    if (pivot) assertPivot(pivot);
-    const current = findSprite(await this.read(), id);
-    const next = { ...current.sprite, ...(rect ?? {}), ...(pivot ? { pivot } : {}) };
-    const size = await this.options.files.imageSize(current.path);
-    assertRectangle(next, size.width, size.height);
-    await this.change((database) => {
-      const found = findSprite(database, id);
-      const source = sourceAt(database, found.path);
-      database.sources = {
-        ...database.sources,
-        [found.path]: { ...source, sprites: { ...source.sprites, [id]: next } },
-      };
+    await setSpriteUseCase(this.options, {
+      id,
+      ...(rect ? { rect } : {}),
+      ...(pivot ? { pivot } : {}),
     });
   }
 
   async renameSprite(from: string, to: string): Promise<void> {
-    assertIdentifier(to);
-    await this.change((database) => {
-      if (hasSprite(database, to))
-        throw new PipelineError('ALREADY_EXISTS', `Sprite existente: ${to}`);
-      const found = findSprite(database, from);
-      const source = sourceAt(database, found.path);
-      const sprites = { ...source.sprites };
-      delete sprites[from];
-      sprites[to] = found.sprite;
-      const animations = Object.fromEntries(
-        Object.entries(source.animations).map(([id, animation]) => [
-          id,
-          {
-            ...animation,
-            frames: animation.frames.map((frame) =>
-              frame.sprite === from ? { ...frame, sprite: to } : frame,
-            ),
-          },
-        ]),
-      );
-      database.sources = { ...database.sources, [found.path]: { sprites, animations } };
-    });
+    await renameSpriteUseCase(this.options, { from, to });
   }
 
   async duplicateSprite(from: string, to: string): Promise<void> {
-    assertIdentifier(to);
-    await this.change((database) => {
-      if (hasSprite(database, to))
-        throw new PipelineError('ALREADY_EXISTS', `Sprite existente: ${to}`);
-      const found = findSprite(database, from);
-      const source = sourceAt(database, found.path);
-      database.sources = {
-        ...database.sources,
-        [found.path]: { ...source, sprites: { ...source.sprites, [to]: found.sprite } },
-      };
-    });
+    await duplicateSpriteUseCase(this.options, { from, to });
   }
 
   async removeSprite(id: string): Promise<void> {
-    await this.change((database) => {
-      const found = findSprite(database, id);
-      const source = sourceAt(database, found.path);
-      for (const [animationId, animation] of Object.entries(source.animations)) {
-        if (animation.frames.some((frame) => frame.sprite === id)) {
-          throw new PipelineError(
-            'IN_USE',
-            `El sprite ${id} se usa en la animación ${animationId}.`,
-          );
-        }
-      }
-      const sprites = { ...source.sprites };
-      delete sprites[id];
-      if (Object.keys(sprites).length === 0) {
-        if (Object.keys(source.animations).length > 0) {
-          throw new PipelineError('IN_USE', 'Elimina primero las animaciones del archivo.');
-        }
-        const sources = { ...database.sources };
-        delete sources[found.path];
-        database.sources = sources;
-      } else {
-        database.sources = { ...database.sources, [found.path]: { ...source, sprites } };
-      }
-    });
+    await removeSpriteUseCase(this.options, { id });
   }
 
   async showAnimation(id: string): Promise<AnimationLocation> {
