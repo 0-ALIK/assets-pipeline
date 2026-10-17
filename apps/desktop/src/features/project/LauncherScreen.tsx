@@ -1,5 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
-import { FolderOpen, FolderSearch, Plus, TriangleAlert, X } from 'lucide-react';
+import { Close } from 'pixelarticons/react/Close.js';
+import { Folder } from 'pixelarticons/react/Folder.js';
+import { Plus } from 'pixelarticons/react/Plus.js';
+import { Search } from 'pixelarticons/react/Search.js';
+import { WarningDiamond } from 'pixelarticons/react/WarningDiamond.js';
+import { Button } from '../../components/Button.js';
+import { EmptyState } from '../../components/Field.js';
 import { askConfirmation, pickDirectory } from '../../adapters/tauri/dialogs.js';
 import { canonicalPath, findRepositoryRoot } from '../../adapters/tauri/repository.js';
 import { useToast } from '../../components/Toast.js';
@@ -89,12 +95,12 @@ export function LauncherScreen({ onOpen }: LauncherScreenProps) {
           una sola herramienta.
         </p>
         <div className="launcher-actions">
-          <button type="button" className="btn btn-primary" onClick={() => setCreateOpen(true)}>
-            <Plus size={16} /> Crear proyecto
-          </button>
-          <button type="button" className="btn" onClick={() => void openFolder()}>
-            <FolderOpen size={16} /> Abrir carpeta
-          </button>
+          <Button variant="primary" onClick={() => setCreateOpen(true)}>
+            <Plus width={24} height={24} /> Crear proyecto
+          </Button>
+          <Button onClick={() => void openFolder()}>
+            <Folder width={24} height={24} /> Abrir carpeta
+          </Button>
         </div>
         <p className="version-label">Versión {__APP_VERSION__}</p>
       </section>
@@ -104,13 +110,9 @@ export function LauncherScreen({ onOpen }: LauncherScreenProps) {
           <h2 id="recent-title">Proyectos recientes</h2>
         </header>
         {recents.length === 0 ? (
-          <div className="empty-state">
-            <div className="empty-icon">
-              <FolderSearch size={22} />
-            </div>
-            <h3>Todavía no hay proyectos</h3>
-            <div className="empty-copy">Crea un proyecto nuevo o abre una carpeta existente.</div>
-          </div>
+          <EmptyState icon={<Search width={32} height={32} />} title="Todavía no hay proyectos">
+            Crea un proyecto nuevo o abre una carpeta existente.
+          </EmptyState>
         ) : (
           <ul className="recent-list">
             {recents.map((recent) => {
@@ -127,21 +129,21 @@ export function LauncherScreen({ onOpen }: LauncherScreenProps) {
                     <span className="recent-time">
                       {isMissing ? (
                         <>
-                          <TriangleAlert size={13} /> No encontrado
+                          <WarningDiamond width={16} height={16} /> No encontrado
                         </>
                       ) : (
                         `Última apertura: ${dateFormat.format(new Date(recent.lastOpenedAt))}`
                       )}
                     </span>
                   </button>
-                  <button
-                    type="button"
-                    className="btn btn-icon"
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
                     aria-label={`Quitar ${recent.name} de la lista`}
                     onClick={() => setRecents(forgetProject(recent.root))}
                   >
-                    <X size={14} />
-                  </button>
+                    <Close width={24} height={24} />
+                  </Button>
                 </li>
               );
             })}

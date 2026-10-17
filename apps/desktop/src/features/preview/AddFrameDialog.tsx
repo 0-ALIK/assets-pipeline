@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { Button } from '../../components/Button.js';
+import { Input } from '../../components/ui/pixelact-ui/input.js';
 import { Modal } from '../../components/Modal.js';
 import { Field } from '../../components/Field.js';
 import type { SpriteDefinition } from '@assets-pipeline/core';
@@ -33,16 +35,11 @@ export function AddFrameDialog({
         insertAt === null ? 'Añadir frame al final' : `Insertar frame en la posición ${insertAt}`
       }
       onClose={onClose}
-      width={520}
-      footer={
-        <button type="button" className="btn" onClick={onClose}>
-          Cerrar
-        </button>
-      }
+      width={560}
+      footer={<Button onClick={onClose}>Cerrar</Button>}
     >
       <Field label="Duración (ms)" hint="Se aplica a cada sprite que añadas desde aquí.">
-        <input
-          className="input"
+        <Input
           type="number"
           min={1}
           value={duration}

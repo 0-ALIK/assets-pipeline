@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { PipelineError, assertIdentifier } from '@assets-pipeline/core';
+import { Button } from '../../components/Button.js';
+import { Input } from '../../components/ui/pixelact-ui/input.js';
 import { Modal } from '../../components/Modal.js';
 import { Field } from '../../components/Field.js';
 
@@ -43,26 +45,21 @@ export function RenameAnimationDialog({
     <Modal
       title="Renombrar animación"
       onClose={onClose}
-      width={460}
+      width={500}
       footer={
         <>
-          <button type="button" className="btn" onClick={onClose} disabled={working || busy}>
+          <Button onClick={onClose} disabled={working || busy}>
             Cancelar
-          </button>
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={() => void submit()}
-            disabled={working || busy}
-          >
+          </Button>
+          <Button variant="primary" onClick={() => void submit()} disabled={working || busy}>
             {working ? 'Renombrando…' : 'Renombrar'}
-          </button>
+          </Button>
         </>
       }
     >
       <Field label="Nuevo ID">
-        <input
-          className="input mono"
+        <Input
+          className="mono"
           value={id}
           autoFocus
           onChange={(event) => setId(event.target.value)}

@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
+import type { PathChangePlan } from '@assets-pipeline/core';
+import { Button } from '../../components/Button.js';
+import { Input } from '../../components/ui/pixelact-ui/input.js';
 import { Modal } from '../../components/Modal.js';
 import { Field, Spinner } from '../../components/Field.js';
 import { useToast } from '../../components/Toast.js';
 import { useRepository, describeError } from '../project/repository-context.js';
-import type { PathChangePlan } from '@assets-pipeline/core';
 import { fileName, parentPath, childPath } from './tree.js';
 
 function PlanPreview({ plan, kind }: { plan: PathChangePlan; kind: 'move' | 'remove' }) {
@@ -112,20 +114,15 @@ export function NewFolderDialog({ parent, onClose }: NewFolderDialogProps) {
     <Modal
       title="Nueva carpeta"
       onClose={onClose}
-      width={440}
+      width={480}
       footer={
         <>
-          <button type="button" className="btn" onClick={onClose} disabled={busy}>
+          <Button onClick={onClose} disabled={busy}>
             Cancelar
-          </button>
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={() => void submit()}
-            disabled={busy}
-          >
+          </Button>
+          <Button variant="primary" onClick={() => void submit()} disabled={busy}>
             Crear
-          </button>
+          </Button>
         </>
       }
     >
@@ -133,8 +130,8 @@ export function NewFolderDialog({ parent, onClose }: NewFolderDialogProps) {
         label="Nombre"
         hint={parent === '' ? 'Se creará en la raíz del repositorio.' : `Dentro de ${parent}/`}
       >
-        <input
-          className="input"
+        <Input
+          className="mono"
           value={name}
           autoFocus
           placeholder="npc"
@@ -207,30 +204,20 @@ export function RenameDialog({ path, onClose }: RenameDialogProps) {
     <Modal
       title="Renombrar"
       onClose={onClose}
-      width={plan ? 620 : 460}
+      width={plan ? 660 : 500}
       footer={
         <>
-          <button type="button" className="btn" onClick={onClose} disabled={busy}>
+          <Button onClick={onClose} disabled={busy}>
             Cancelar
-          </button>
+          </Button>
           {plan ? (
-            <button
-              type="button"
-              className="btn btn-primary"
-              onClick={() => void confirm()}
-              disabled={busy}
-            >
+            <Button variant="primary" onClick={() => void confirm()} disabled={busy}>
               {busy ? 'Aplicando…' : 'Renombrar'}
-            </button>
+            </Button>
           ) : (
-            <button
-              type="button"
-              className="btn btn-primary"
-              onClick={() => void preview()}
-              disabled={busy}
-            >
+            <Button variant="primary" onClick={() => void preview()} disabled={busy}>
               {busy ? 'Comprobando…' : 'Continuar'}
-            </button>
+            </Button>
           )}
         </>
       }
@@ -240,8 +227,8 @@ export function RenameDialog({ path, onClose }: RenameDialogProps) {
       ) : (
         <>
           <Field label="Nuevo nombre">
-            <input
-              className="input"
+            <Input
+              className="mono"
               value={name}
               autoFocus
               onChange={(event) => setName(event.target.value)}
@@ -309,30 +296,20 @@ export function MoveDialog({ path, onClose }: MoveDialogProps) {
     <Modal
       title="Mover"
       onClose={onClose}
-      width={plan ? 620 : 520}
+      width={plan ? 660 : 560}
       footer={
         <>
-          <button type="button" className="btn" onClick={onClose} disabled={busy}>
+          <Button onClick={onClose} disabled={busy}>
             Cancelar
-          </button>
+          </Button>
           {plan ? (
-            <button
-              type="button"
-              className="btn btn-primary"
-              onClick={() => void confirm()}
-              disabled={busy}
-            >
+            <Button variant="primary" onClick={() => void confirm()} disabled={busy}>
               {busy ? 'Aplicando…' : 'Mover'}
-            </button>
+            </Button>
           ) : (
-            <button
-              type="button"
-              className="btn btn-primary"
-              onClick={() => void preview()}
-              disabled={busy}
-            >
+            <Button variant="primary" onClick={() => void preview()} disabled={busy}>
               {busy ? 'Comprobando…' : 'Continuar'}
-            </button>
+            </Button>
           )}
         </>
       }
@@ -345,8 +322,8 @@ export function MoveDialog({ path, onClose }: MoveDialogProps) {
             label="Ruta de destino (relativa al repositorio)"
             hint="Se crean las carpetas padre que falten. Usa / como separador."
           >
-            <input
-              className="input mono"
+            <Input
+              className="mono"
               value={destination}
               autoFocus
               list="explorer-directories"
@@ -418,20 +395,15 @@ export function RemoveDialog({ path, onClose }: RemoveDialogProps) {
     <Modal
       title="Eliminar"
       onClose={onClose}
-      width={640}
+      width={680}
       footer={
         <>
-          <button type="button" className="btn" onClick={onClose} disabled={busy}>
+          <Button onClick={onClose} disabled={busy}>
             Cancelar
-          </button>
-          <button
-            type="button"
-            className="btn btn-danger"
-            onClick={() => void confirm()}
-            disabled={busy || !plan}
-          >
+          </Button>
+          <Button variant="destructive" onClick={() => void confirm()} disabled={busy || !plan}>
             {busy ? 'Eliminando…' : 'Eliminar'}
-          </button>
+          </Button>
         </>
       }
     >

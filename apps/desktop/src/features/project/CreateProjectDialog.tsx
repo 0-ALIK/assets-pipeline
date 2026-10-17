@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { Button } from '../../components/Button.js';
+import { Input } from '../../components/ui/pixelact-ui/input.js';
 import { Modal } from '../../components/Modal.js';
 import { Field } from '../../components/Field.js';
 import { useToast } from '../../components/Toast.js';
@@ -65,27 +67,21 @@ export function CreateProjectDialog({ onClose, onCreated }: CreateProjectDialogP
     <Modal
       title="Nuevo proyecto"
       onClose={onClose}
-      width={520}
+      width={560}
       footer={
         <>
-          <button type="button" className="btn" onClick={onClose} disabled={busy}>
+          <Button onClick={onClose} disabled={busy}>
             Cancelar
-          </button>
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={() => void create()}
-            disabled={busy}
-          >
+          </Button>
+          <Button variant="primary" onClick={() => void create()} disabled={busy}>
             {busy ? 'Creando…' : 'Crear proyecto'}
-          </button>
+          </Button>
         </>
       }
     >
       <div className="dialog-fields">
         <Field label="Nombre del proyecto">
-          <input
-            className="input"
+          <Input
             value={name}
             autoFocus
             placeholder="Mi proyecto de assets"
@@ -100,14 +96,9 @@ export function CreateProjectDialog({ onClose, onCreated }: CreateProjectDialogP
             <span className={`folder-value${folder ? '' : ' placeholder'}`}>
               {folder ?? 'Ninguna carpeta seleccionada'}
             </span>
-            <button
-              type="button"
-              className="btn"
-              onClick={() => void chooseFolder()}
-              disabled={busy}
-            >
+            <Button onClick={() => void chooseFolder()} disabled={busy}>
               Elegir carpeta…
-            </button>
+            </Button>
           </div>
         </Field>
         {error ? <p className="form-error">{error}</p> : null}

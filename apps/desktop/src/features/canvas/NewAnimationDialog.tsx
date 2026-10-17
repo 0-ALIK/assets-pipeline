@@ -1,10 +1,22 @@
 import { useState } from 'react';
-import { ArrowDown, ArrowUp, Plus, X } from 'lucide-react';
+import { ArrowDown } from 'pixelarticons/react/ArrowDown.js';
+import { ArrowUp } from 'pixelarticons/react/ArrowUp.js';
+import { Close } from 'pixelarticons/react/Close.js';
+import { Plus } from 'pixelarticons/react/Plus.js';
 import { PipelineError, assertDuration, assertIdentifier } from '@assets-pipeline/core';
 import type { SpriteDefinition } from '@assets-pipeline/core';
-import { moveItem } from '../preview/frame-sequence.js';
+import { Button } from '../../components/Button.js';
+import { Input } from '../../components/ui/pixelact-ui/input.js';
 import { Modal } from '../../components/Modal.js';
 import { Field } from '../../components/Field.js';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../../components/ui/pixelact-ui/select.js';
+import { moveItem } from '../preview/frame-sequence.js';
 
 export interface AnimationFrameInput {
   readonly sprite: string;
@@ -73,28 +85,23 @@ export function NewAnimationDialog({
     <Modal
       title="Nueva animación"
       onClose={onClose}
-      width={760}
+      width={820}
       footer={
         <>
-          <button type="button" className="btn" onClick={onClose} disabled={busy}>
+          <Button onClick={onClose} disabled={busy}>
             Cancelar
-          </button>
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={() => void submit()}
-            disabled={busy}
-          >
+          </Button>
+          <Button variant="primary" onClick={() => void submit()} disabled={busy}>
             {busy ? 'Creando…' : 'Crear animación'}
-          </button>
+          </Button>
         </>
       }
     >
       <div className="animation-form">
         <div className="grid-2">
           <Field label="ID de la animación">
-            <input
-              className="input mono"
+            <Input
+              className="mono"
               value={id}
               autoFocus
               placeholder="npc/walk"
@@ -102,14 +109,22 @@ export function NewAnimationDialog({
             />
           </Field>
           <Field label="Reproducción" hint="loop = bucle continuo · once = una sola vez">
-            <select
-              className="select"
+            <Select
               value={playback}
-              onChange={(event) => setPlayback(event.target.value === 'once' ? 'once' : 'loop')}
+              onValueChange={(value) => setPlayback(value === 'once' ? 'once' : 'loop')}
             >
-              <option value="loop">loop</option>
-              <option value="once">once</option>
-            </select>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="loop" className="pixel-font text-[10px]">
+                  loop
+                </SelectItem>
+                <SelectItem value="once" className="pixel-font text-[10px]">
+                  once
+                </SelectItem>
+              </SelectContent>
+            </Select>
           </Field>
         </div>
 
@@ -130,7 +145,7 @@ export function NewAnimationDialog({
                       <span className="picker-meta">
                         {sprite.width}×{sprite.height}
                       </span>
-                      <Plus size={13} />
+                      <Plus width={24} height={24} />
                     </button>
                   </li>
                 );
@@ -147,8 +162,8 @@ export function NewAnimationDialog({
                   <li key={`${frame.sprite}-${index}`} className="sequence-item">
                     <span className="sequence-index">{index}</span>
                     <span className="sequence-sprite mono">{frame.sprite}</span>
-                    <input
-                      className="input sequence-duration"
+                    <Input
+                      className="sequence-duration"
                       type="number"
                       min={1}
                       value={String(frame.durationMs)}
@@ -157,34 +172,34 @@ export function NewAnimationDialog({
                         updateFrame(index, { durationMs: Number(event.target.value) })
                       }
                     />
-                    <button
-                      type="button"
-                      className="btn btn-icon btn-sm"
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
                       aria-label="Subir"
                       disabled={index === 0}
                       onClick={() => moveFrame(index, -1)}
                     >
-                      <ArrowUp size={12} />
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-icon btn-sm"
+                      <ArrowUp width={24} height={24} />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
                       aria-label="Bajar"
                       disabled={index === frames.length - 1}
                       onClick={() => moveFrame(index, 1)}
                     >
-                      <ArrowDown size={12} />
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-icon btn-sm"
+                      <ArrowDown width={24} height={24} />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
                       aria-label="Quitar"
                       onClick={() =>
                         setFrames((current) => current.filter((_, position) => position !== index))
                       }
                     >
-                      <X size={12} />
-                    </button>
+                      <Close width={24} height={24} />
+                    </Button>
                   </li>
                 ))}
               </ol>

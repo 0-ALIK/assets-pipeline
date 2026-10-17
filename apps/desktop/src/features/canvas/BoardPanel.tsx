@@ -1,11 +1,24 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ImageOff, Loader2, Maximize, PencilRuler, RotateCcw, ZoomIn, ZoomOut } from 'lucide-react';
+import { Expand } from 'pixelarticons/react/Expand.js';
+import { EyeOff } from 'pixelarticons/react/EyeOff.js';
+import { Pencil } from 'pixelarticons/react/Pencil.js';
+import { Reload } from 'pixelarticons/react/Reload.js';
+import { ZoomIn } from 'pixelarticons/react/ZoomIn.js';
+import { ZoomOut } from 'pixelarticons/react/ZoomOut.js';
 import {
   PipelineError,
   assertIdentifier,
   assertPivot,
   assertRectangle,
 } from '@assets-pipeline/core';
+import { Button } from '../../components/Button.js';
+import { Input } from '../../components/ui/pixelact-ui/input.js';
+import { Spinner as PixelSpinner } from '../../components/ui/pixelact-ui/spinner.js';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '../../components/ui/pixelact-ui/tooltip.js';
 import { Modal } from '../../components/Modal.js';
 import { Field } from '../../components/Field.js';
 import { useToast } from '../../components/Toast.js';
@@ -540,32 +553,41 @@ export function BoardPanel({ root, path }: BoardPanelProps) {
               </span>
             ) : null}
             {imageLoading ? (
-              <Loader2 size={14} className="spin" aria-label="Cargando imagen" />
+              <PixelSpinner width={24} height={24} aria-label="Cargando imagen" />
             ) : null}
             <div className="zoom-controls">
-              <button
-                type="button"
-                className="btn btn-icon btn-sm"
-                aria-label="Alejar"
-                onClick={() => stepZoom(-1)}
-              >
-                <ZoomOut size={14} />
-              </button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    aria-label="Alejar"
+                    onClick={() => stepZoom(-1)}
+                  >
+                    <ZoomOut width={24} height={24} />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Alejar</TooltipContent>
+              </Tooltip>
               <span className="zoom-value mono">{viewport.zoom}×</span>
-              <button
-                type="button"
-                className="btn btn-icon btn-sm"
-                aria-label="Acercar"
-                onClick={() => stepZoom(1)}
-              >
-                <ZoomIn size={14} />
-              </button>
-              <button type="button" className="btn btn-sm" onClick={() => fitViewport(image)}>
-                <Maximize size={13} /> Ajustar
-              </button>
-              <button
-                type="button"
-                className="btn btn-sm"
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    aria-label="Acercar"
+                    onClick={() => stepZoom(1)}
+                  >
+                    <ZoomIn width={24} height={24} />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Acercar</TooltipContent>
+              </Tooltip>
+              <Button size="sm" onClick={() => fitViewport(image)}>
+                <Expand width={24} height={24} /> Ajustar
+              </Button>
+              <Button
+                size="sm"
                 onClick={() => {
                   if (!image) return;
                   setViewport({
@@ -579,16 +601,20 @@ export function BoardPanel({ root, path }: BoardPanelProps) {
                 }}
               >
                 100%
-              </button>
-              <button
-                type="button"
-                className="btn btn-icon btn-sm"
-                aria-label="Recargar imagen"
-                title="Recargar imagen"
-                onClick={reloadImage}
-              >
-                <RotateCcw size={14} />
-              </button>
+              </Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    aria-label="Recargar imagen"
+                    onClick={reloadImage}
+                  >
+                    <Reload width={24} height={24} />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Recargar la imagen desde el disco</TooltipContent>
+              </Tooltip>
             </div>
           </header>
 
@@ -618,11 +644,11 @@ export function BoardPanel({ root, path }: BoardPanelProps) {
           >
             {imageError ? (
               <div className="board-image-error">
-                <ImageOff size={20} />
+                <EyeOff width={32} height={32} />
                 <p>{imageError}</p>
-                <button type="button" className="btn btn-sm" onClick={reloadImage}>
+                <Button size="sm" onClick={reloadImage}>
                   Reintentar
-                </button>
+                </Button>
               </div>
             ) : (
               <PixelCanvas
@@ -639,7 +665,8 @@ export function BoardPanel({ root, path }: BoardPanelProps) {
             )}
             {drawMode ? (
               <div className="draw-hint">
-                <PencilRuler size={14} /> Arrastra para dibujar la región · Esc para cancelar
+                <Pencil width={20} height={20} /> Arrastra para dibujar la región · Esc para
+                cancelar
               </div>
             ) : null}
           </div>
@@ -758,23 +785,18 @@ function DuplicateSpriteDialog({ from, onClose, onSubmit }: DuplicateSpriteDialo
       width={460}
       footer={
         <>
-          <button type="button" className="btn" onClick={onClose} disabled={busy}>
+          <Button onClick={onClose} disabled={busy}>
             Cancelar
-          </button>
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={() => void submit()}
-            disabled={busy}
-          >
+          </Button>
+          <Button variant="primary" onClick={() => void submit()} disabled={busy}>
             {busy ? 'Duplicando…' : 'Duplicar'}
-          </button>
+          </Button>
         </>
       }
     >
       <Field label="ID del nuevo sprite">
-        <input
-          className="input mono"
+        <Input
+          className="mono"
           value={id}
           autoFocus
           onChange={(event) => setId(event.target.value)}

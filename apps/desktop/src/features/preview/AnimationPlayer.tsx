@@ -1,11 +1,23 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowLeft, Pause, Pencil, Play, RotateCcw } from 'lucide-react';
+import { ArrowLeft } from 'pixelarticons/react/ArrowLeft.js';
+import { Pause } from 'pixelarticons/react/Pause.js';
+import { Pencil } from 'pixelarticons/react/Pencil.js';
+import { Play } from 'pixelarticons/react/Play.js';
+import { Reload } from 'pixelarticons/react/Reload.js';
 import type { AnimationDefinition, SpriteDefinition } from '@assets-pipeline/core';
+import { Button } from '../../components/Button.js';
 import { useSourceImage } from '../canvas/useSourceImage.js';
 import { AddFrameDialog } from './AddFrameDialog.js';
 import { FrameStrip } from './FrameStrip.js';
 import { RenameAnimationDialog } from './RenameAnimationDialog.js';
 import { findFrameAt, layoutAnimationFrames, totalDuration } from './pivot-math.js';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../../components/ui/pixelact-ui/select.js';
 
 interface AnimationPlayerProps {
   readonly root: string;
@@ -226,56 +238,59 @@ export function AnimationPlayer({
   return (
     <div className="player">
       <header className="player-header">
-        <button type="button" className="btn btn-sm" onClick={onBack}>
-          <ArrowLeft size={14} /> Volver al archivo
-        </button>
+        <Button size="sm" onClick={onBack}>
+          <ArrowLeft width={24} height={24} /> Volver al archivo
+        </Button>
         <span className="player-title mono" title={animationId}>
           {animationId}
         </span>
-        <button
-          type="button"
-          className="btn btn-icon btn-sm"
+        <Button
+          variant="ghost"
+          size="icon-sm"
           title="Renombrar animación"
           aria-label="Renombrar animación"
           disabled={busy}
           onClick={() => setRenameOpen(true)}
         >
-          <Pencil size={13} />
-        </button>
+          <Pencil width={24} height={24} />
+        </Button>
         <span className="player-meta">
           {frames.length} frames · {total} ms
         </span>
-        <select
-          className="select player-playback"
-          value={animation.playback}
-          disabled={busy}
-          title="Modo de reproducción"
-          onChange={(event) => onSetPlayback(event.target.value === 'once' ? 'once' : 'loop')}
-        >
-          <option value="loop">loop</option>
-          <option value="once">once</option>
-        </select>
+        <div className="player-playback" title="Modo de reproducción">
+          <Select
+            value={animation.playback}
+            disabled={busy}
+            onValueChange={(value) => onSetPlayback(value === 'once' ? 'once' : 'loop')}
+          >
+            <SelectTrigger size="sm">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="loop" className="pixel-font text-[10px]">
+                loop
+              </SelectItem>
+              <SelectItem value="once" className="pixel-font text-[10px]">
+                once
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
         <div className="player-controls">
-          <button
-            type="button"
-            className="btn btn-sm"
+          <Button
+            size="sm"
             onClick={() => setPlaying((current) => !current)}
             disabled={
               frames.length === 0 ||
               (!playing && elapsedRef.current >= total && animation.playback === 'once')
             }
           >
-            {playing ? <Pause size={14} /> : <Play size={14} />}
+            {playing ? <Pause width={24} height={24} /> : <Play width={24} height={24} />}
             {playing ? 'Pausar' : 'Reproducir'}
-          </button>
-          <button
-            type="button"
-            className="btn btn-sm"
-            onClick={restart}
-            disabled={frames.length === 0}
-          >
-            <RotateCcw size={14} /> Reiniciar
-          </button>
+          </Button>
+          <Button size="sm" onClick={restart} disabled={frames.length === 0}>
+            <Reload width={24} height={24} /> Reiniciar
+          </Button>
         </div>
       </header>
 

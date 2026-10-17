@@ -1,5 +1,9 @@
-import { Copy, Plus, Trash2 } from 'lucide-react';
+import { Copy } from 'pixelarticons/react/Copy.js';
+import { Delete } from 'pixelarticons/react/Delete.js';
+import { Plus } from 'pixelarticons/react/Plus.js';
 import type { SpriteDefinition } from '@assets-pipeline/core';
+import { Button } from '../../components/Button.js';
+import { Input } from '../../components/ui/pixelact-ui/input.js';
 import type { Point, Pivot, Rect } from './sprite-editor.js';
 
 export interface SpriteDraft {
@@ -50,9 +54,9 @@ export function SpritePanel({
         <h3>
           Sprites <span className="side-count">{spriteIds.length}</span>
         </h3>
-        <button type="button" className="btn btn-sm" onClick={onNew} disabled={busy}>
-          <Plus size={13} /> Nuevo
-        </button>
+        <Button size="sm" onClick={onNew} disabled={busy}>
+          <Plus width={24} height={24} /> Nuevo
+        </Button>
       </header>
       {spriteIds.length === 0 ? (
         <p className="side-placeholder">
@@ -74,30 +78,30 @@ export function SpritePanel({
                   <span className="sprite-name">{id}</span>
                   <span className="sprite-meta">
                     {sprite.width}×{sprite.height} · ({sprite.x}, {sprite.y}) · pivot{' '}
-                    {sprite.pivot.x}, {sprite.pivot.y}
+                    {sprite.pivot.x},{sprite.pivot.y}
                   </span>
                 </button>
                 <div className="sprite-actions">
-                  <button
-                    type="button"
-                    className="btn btn-icon btn-sm"
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
                     aria-label={`Duplicar ${id}`}
                     title="Duplicar"
                     disabled={busy}
                     onClick={() => onDuplicate(id)}
                   >
-                    <Copy size={13} />
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-icon btn-sm"
+                    <Copy width={24} height={24} />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
                     aria-label={`Eliminar ${id}`}
                     title="Eliminar"
                     disabled={busy}
                     onClick={() => onDelete(id)}
                   >
-                    <Trash2 size={13} />
-                  </button>
+                    <Delete width={24} height={24} />
+                  </Button>
                 </div>
               </li>
             );
@@ -116,8 +120,8 @@ export function SpritePanel({
           <h4>Editar sprite</h4>
           <label className="field">
             <span className="field-label">ID</span>
-            <input
-              className="input mono"
+            <Input
+              className="mono"
               value={draft.id}
               onChange={(event) => onDraft({ ...draft, id: event.target.value })}
             />
@@ -159,12 +163,12 @@ export function SpritePanel({
             />
           </div>
           <div className="form-actions">
-            <button type="button" className="btn" onClick={onReset} disabled={busy}>
+            <Button onClick={onReset} disabled={busy}>
               Descartar
-            </button>
-            <button type="submit" className="btn btn-primary" disabled={busy}>
+            </Button>
+            <Button type="submit" variant="primary" disabled={busy}>
               Aplicar
-            </button>
+            </Button>
           </div>
         </form>
       ) : null}
@@ -194,8 +198,7 @@ function NumberInput({ label, value, step, onChange }: NumberInputProps) {
   return (
     <label className="field">
       <span className="field-label">{label}</span>
-      <input
-        className="input"
+      <Input
         type="number"
         step={step ?? 1}
         value={String(value)}

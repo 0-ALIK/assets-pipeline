@@ -1,5 +1,10 @@
 import { useEffect, useState } from 'react';
-import { ChevronLeft, ChevronRight, Copy, X } from 'lucide-react';
+import { ChevronLeft } from 'pixelarticons/react/ChevronLeft.js';
+import { ChevronRight } from 'pixelarticons/react/ChevronRight.js';
+import { Close } from 'pixelarticons/react/Close.js';
+import { Copy } from 'pixelarticons/react/Copy.js';
+import { Button } from '../../components/Button.js';
+import { Input } from '../../components/ui/pixelact-ui/input.js';
 import type { AnimationFrame } from '@assets-pipeline/core';
 
 interface FrameStripProps {
@@ -52,7 +57,7 @@ export function FrameStrip({
         disabled={busy}
         title="Añadir frame al final"
       >
-        + Frame
+        + frame
       </button>
     </footer>
   );
@@ -109,8 +114,8 @@ function FrameChip({
         </span>
       </button>
       <div className="strip-controls">
-        <input
-          className="input strip-duration-input"
+        <Input
+          className="strip-duration-input"
           type="number"
           min={1}
           value={duration}
@@ -122,56 +127,56 @@ function FrameChip({
             if (event.key === 'Enter') commitDuration();
           }}
         />
-        <button
-          type="button"
-          className="btn btn-icon btn-sm"
+        <Button
+          variant="ghost"
+          size="icon-sm"
           title="Insertar un frame antes"
           aria-label="Insertar un frame antes"
           disabled={busy}
           onClick={() => onInsertBefore(index)}
         >
           +
-        </button>
-        <button
-          type="button"
-          className="btn btn-icon btn-sm"
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon-sm"
           title="Mover a la izquierda"
           aria-label="Mover a la izquierda"
           disabled={busy || index === 0}
           onClick={() => onMove(index, index - 1)}
         >
-          <ChevronLeft size={12} />
-        </button>
-        <button
-          type="button"
-          className="btn btn-icon btn-sm"
+          <ChevronLeft width={24} height={24} />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon-sm"
           title="Mover a la derecha"
           aria-label="Mover a la derecha"
           disabled={busy || index === total - 1}
           onClick={() => onMove(index, index + 1)}
         >
-          <ChevronRight size={12} />
-        </button>
-        <button
-          type="button"
-          className="btn btn-icon btn-sm"
+          <ChevronRight width={24} height={24} />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon-sm"
           title="Duplicar este frame"
           aria-label="Duplicar este frame"
           disabled={busy}
           onClick={() => onDuplicate(index)}
         >
-          <Copy size={12} />
-        </button>
-        <button
-          type="button"
-          className="btn btn-icon btn-sm"
+          <Copy width={24} height={24} />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon-sm"
           title="Eliminar este frame"
           aria-label="Eliminar este frame"
           disabled={busy || total <= 1}
           onClick={() => onRemove(index)}
         >
-          <X size={12} />
-        </button>
+          <Close width={24} height={24} />
+        </Button>
       </div>
     </div>
   );

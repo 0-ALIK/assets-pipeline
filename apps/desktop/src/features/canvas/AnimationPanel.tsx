@@ -1,5 +1,8 @@
-import { Plus, Repeat2, Trash2 } from 'lucide-react';
+import { Delete } from 'pixelarticons/react/Delete.js';
+import { Plus } from 'pixelarticons/react/Plus.js';
+import { Repeat } from 'pixelarticons/react/Repeat.js';
 import type { AnimationDefinition } from '@assets-pipeline/core';
+import { Button } from '../../components/Button.js';
 import { totalDuration } from '../preview/pivot-math.js';
 
 interface AnimationPanelProps {
@@ -29,9 +32,9 @@ export function AnimationPanel({
         <h3>
           Animaciones <span className="side-count">{animationIds.length}</span>
         </h3>
-        <button type="button" className="btn btn-sm" onClick={onNew} disabled={busy}>
-          <Plus size={13} /> Nueva
-        </button>
+        <Button size="sm" onClick={onNew} disabled={busy}>
+          <Plus width={24} height={24} /> Nueva
+        </Button>
       </header>
       {animationIds.length === 0 ? (
         <p className="side-placeholder">
@@ -51,9 +54,9 @@ export function AnimationPanel({
                   </span>
                 </button>
                 <div className="animation-actions">
-                  <button
-                    type="button"
-                    className="btn btn-icon btn-sm"
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
                     title={
                       animation.playback === 'loop'
                         ? 'Cambiar a reproducción única'
@@ -63,18 +66,18 @@ export function AnimationPanel({
                     disabled={busy}
                     onClick={() => onTogglePlayback(id)}
                   >
-                    <Repeat2 size={13} />
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-icon btn-sm"
+                    <Repeat width={24} height={24} />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
                     title="Eliminar animación"
                     aria-label={`Eliminar ${id}`}
                     disabled={busy}
                     onClick={() => onDelete(id)}
                   >
-                    <Trash2 size={13} />
-                  </button>
+                    <Delete width={24} height={24} />
+                  </Button>
                 </div>
               </li>
             );

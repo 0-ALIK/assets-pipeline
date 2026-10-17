@@ -5,6 +5,8 @@ import {
   assertPivot,
   assertRectangle,
 } from '@assets-pipeline/core';
+import { Button } from '../../components/Button.js';
+import { Input } from '../../components/ui/pixelact-ui/input.js';
 import { Modal } from '../../components/Modal.js';
 import { Field } from '../../components/Field.js';
 import type { Pivot, Rect } from './sprite-editor.js';
@@ -56,18 +58,14 @@ export function NewSpriteDialog({
     if (ok) onClose();
   };
 
-  const numberValue = (value: number): string => String(value);
-
   return (
     <Modal
       title="Nuevo sprite"
       onClose={onClose}
-      width={560}
+      width={620}
       footer={
         <>
-          <button
-            type="button"
-            className="btn"
+          <Button
             disabled={busy}
             onClick={() => {
               onClose();
@@ -75,19 +73,14 @@ export function NewSpriteDialog({
             }}
           >
             Dibujar en el lienzo
-          </button>
+          </Button>
           <span className="footer-spacer" />
-          <button type="button" className="btn" onClick={onClose} disabled={busy}>
+          <Button onClick={onClose} disabled={busy}>
             Cancelar
-          </button>
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={() => void submit()}
-            disabled={busy}
-          >
+          </Button>
+          <Button variant="primary" onClick={() => void submit()} disabled={busy}>
             {busy ? 'Creando…' : 'Crear sprite'}
-          </button>
+          </Button>
         </>
       }
     >
@@ -95,8 +88,8 @@ export function NewSpriteDialog({
         label="ID"
         hint="Segmentos separados por /. El primer segmento define el grupo del atlas."
       >
-        <input
-          className="input mono"
+        <Input
+          className="mono"
           value={id}
           autoFocus
           placeholder="npc/head/front/idle_0"
@@ -105,54 +98,48 @@ export function NewSpriteDialog({
       </Field>
       <div className="grid-4">
         <Field label="x">
-          <input
-            className="input"
+          <Input
             type="number"
-            value={numberValue(rect.x)}
+            value={String(rect.x)}
             onChange={(event) => setRect({ ...rect, x: Number(event.target.value) })}
           />
         </Field>
         <Field label="y">
-          <input
-            className="input"
+          <Input
             type="number"
-            value={numberValue(rect.y)}
+            value={String(rect.y)}
             onChange={(event) => setRect({ ...rect, y: Number(event.target.value) })}
           />
         </Field>
         <Field label="Ancho">
-          <input
-            className="input"
+          <Input
             type="number"
-            value={numberValue(rect.width)}
+            value={String(rect.width)}
             onChange={(event) => setRect({ ...rect, width: Number(event.target.value) })}
           />
         </Field>
         <Field label="Alto">
-          <input
-            className="input"
+          <Input
             type="number"
-            value={numberValue(rect.height)}
+            value={String(rect.height)}
             onChange={(event) => setRect({ ...rect, height: Number(event.target.value) })}
           />
         </Field>
       </div>
       <div className="grid-2">
         <Field label="Pivot x (0–1)">
-          <input
-            className="input"
+          <Input
             type="number"
             step={0.05}
-            value={numberValue(pivot.x)}
+            value={String(pivot.x)}
             onChange={(event) => setPivot({ ...pivot, x: Number(event.target.value) })}
           />
         </Field>
         <Field label="Pivot y (0–1)">
-          <input
-            className="input"
+          <Input
             type="number"
             step={0.05}
-            value={numberValue(pivot.y)}
+            value={String(pivot.y)}
             onChange={(event) => setPivot({ ...pivot, y: Number(event.target.value) })}
           />
         </Field>

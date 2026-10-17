@@ -12,6 +12,8 @@ import { PipelineError } from '@assets-pipeline/core';
 import type { ListedFile, RepositoryDatabase, RepositoryWorkspace } from '@assets-pipeline/core';
 import { withRepositoryLock } from '../../adapters/tauri/lock.js';
 import { createTauriWorkspace } from '../../adapters/tauri/repository.js';
+import { Button } from '../../components/Button.js';
+import { Spinner } from '../../components/Field.js';
 import { useToast } from '../../components/Toast.js';
 
 interface RepositoryContextValue {
@@ -104,9 +106,7 @@ export function RepositoryProvider({ root, children }: ProviderProps) {
         <h2>No se pudo abrir el repositorio</h2>
         <p>{loadError}</p>
         <div className="load-error-actions">
-          <button type="button" className="btn" onClick={() => void load()}>
-            Reintentar
-          </button>
+          <Button onClick={() => void load()}>Reintentar</Button>
         </div>
       </div>
     );
@@ -115,8 +115,7 @@ export function RepositoryProvider({ root, children }: ProviderProps) {
   if (!database) {
     return (
       <div className="screen-loading">
-        <span className="spinner" aria-hidden="true" />
-        <p>Leyendo el repositorio…</p>
+        <Spinner label="Leyendo el repositorio…" />
       </div>
     );
   }

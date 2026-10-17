@@ -1,8 +1,12 @@
 import { useEffect, useState } from 'react';
-import { AlertTriangle, CheckCircle2, HardDriveDownload } from 'lucide-react';
+import { Check } from 'pixelarticons/react/Check.js';
+import { Download } from 'pixelarticons/react/Download.js';
+import { WarningDiamond } from 'pixelarticons/react/WarningDiamond.js';
 import { planAtlasBuild } from '@assets-pipeline/core';
 import type { AtlasBuildPlan } from '@assets-pipeline/core';
 import { revealItemInDir } from '@tauri-apps/plugin-opener';
+import { Button } from '../../components/Button.js';
+import { Input } from '../../components/ui/pixelact-ui/input.js';
 import { Modal } from '../../components/Modal.js';
 import { Field } from '../../components/Field.js';
 import { useToast } from '../../components/Toast.js';
@@ -61,34 +65,29 @@ export function BuildDialog({ onClose }: BuildDialogProps) {
     <Modal
       title="Generar atlas"
       onClose={onClose}
-      width={660}
+      width={720}
       footer={
         result ? (
           <>
-            <button
-              type="button"
-              className="btn"
-              onClick={() => void revealItemInDir(result.output).catch(() => undefined)}
-            >
+            <Button onClick={() => void revealItemInDir(result.output).catch(() => undefined)}>
               Mostrar en el explorador
-            </button>
-            <button type="button" className="btn btn-primary" onClick={onClose}>
+            </Button>
+            <Button variant="primary" onClick={onClose}>
               Cerrar
-            </button>
+            </Button>
           </>
         ) : (
           <>
-            <button type="button" className="btn" onClick={onClose} disabled={building}>
+            <Button onClick={onClose} disabled={building}>
               Cancelar
-            </button>
-            <button
-              type="button"
-              className="btn btn-primary"
+            </Button>
+            <Button
+              variant="primary"
               disabled={building || planState?.status !== 'ready'}
               onClick={() => void build()}
             >
-              <HardDriveDownload size={14} /> {building ? 'Generando…' : 'Generar'}
-            </button>
+              <Download width={24} height={24} /> {building ? 'Generando…' : 'Generar'}
+            </Button>
           </>
         )
       }
@@ -96,7 +95,7 @@ export function BuildDialog({ onClose }: BuildDialogProps) {
       {result ? (
         <div className="build-result">
           <p className="build-ok">
-            <CheckCircle2 size={15} /> Build completado en <code>{result.output}</code>
+            <Check width={24} height={24} /> Build completado en <code>{result.output}</code>
           </p>
           <ul className="build-files">
             {result.files.map((file) => (
@@ -112,8 +111,8 @@ export function BuildDialog({ onClose }: BuildDialogProps) {
             label="Carpeta de salida"
             hint="Subcarpeta del repositorio, igual que `assets-pipeline build --output`."
           >
-            <input
-              className="input mono"
+            <Input
+              className="mono"
               value={output}
               disabled={building}
               onChange={(event) => setOutput(event.target.value)}
@@ -131,7 +130,7 @@ function PlanSummary({ state }: { state: PlanState | null }) {
   if (state.status === 'error') {
     return (
       <div className="plan-check is-error">
-        <AlertTriangle size={14} />
+        <WarningDiamond width={24} height={24} />
         <p>{state.message}</p>
       </div>
     );
@@ -141,7 +140,7 @@ function PlanSummary({ state }: { state: PlanState | null }) {
   const animations = pages.reduce((total, page) => total + page.animations.length, 0);
   return (
     <div className="plan-check is-ok plan-check-build">
-      <CheckCircle2 size={14} />
+      <Check width={24} height={24} />
       <div>
         <p>
           Listo para construir: {pages.length} página(s), {sprites} sprites, {animations}{' '}

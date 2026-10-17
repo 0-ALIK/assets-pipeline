@@ -1,5 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
-import { AlertTriangle, CheckCircle2, HardDrive, Loader2, Plus, Trash2 } from 'lucide-react';
+import { Check } from 'pixelarticons/react/Check.js';
+import { Database } from 'pixelarticons/react/Database.js';
+import { Delete } from 'pixelarticons/react/Delete.js';
+import { Plus } from 'pixelarticons/react/Plus.js';
+import { WarningDiamond } from 'pixelarticons/react/WarningDiamond.js';
 import {
   PipelineError,
   assertAtlasGap,
@@ -8,6 +12,16 @@ import {
   planAtlasBuild,
 } from '@assets-pipeline/core';
 import type { AtlasBuildPlan } from '@assets-pipeline/core';
+import { Button } from '../../components/Button.js';
+import { Input } from '../../components/ui/pixelact-ui/input.js';
+import { Spinner as PixelSpinner } from '../../components/ui/pixelact-ui/spinner.js';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../../components/ui/pixelact-ui/select.js';
 import { Modal } from '../../components/Modal.js';
 import { Field } from '../../components/Field.js';
 import { useToast } from '../../components/Toast.js';
@@ -19,6 +33,8 @@ import type { AtlasInfo, GroupInfo } from './atlas-state.js';
 type PlanCheck =
   | { readonly status: 'ready'; readonly plan: AtlasBuildPlan }
   | { readonly status: 'error'; readonly message: string };
+
+const noAtlasValue = '__none__';
 
 export function AtlasScreen() {
   const { database, mutate, busy } = useRepository();
@@ -85,20 +101,15 @@ export function AtlasScreen() {
             {atlases.length} atlas · {groups.length} grupos · {unassigned.length} sin asignar
           </p>
         </div>
-        <button
-          type="button"
-          className="btn btn-primary btn-sm"
-          disabled={busy}
-          onClick={() => setNewOpen(true)}
-        >
-          <Plus size={14} /> Nuevo atlas
-        </button>
+        <Button variant="primary" size="sm" disabled={busy} onClick={() => setNewOpen(true)}>
+          <Plus width={24} height={24} /> Nuevo atlas
+        </Button>
       </header>
 
       <div className="atlas-columns">
         <section className="atlas-column" aria-label="Configuración de atlas">
           <h3 className="atlas-heading">
-            <HardDrive size={13} /> Configuración
+            <Database width={20} height={20} /> Configuración
           </h3>
           {atlases.length === 0 ? (
             <p className="side-placeholder">
@@ -133,19 +144,33 @@ export function AtlasScreen() {
                 >
                   <span className="group-name mono">{group.name}</span>
                   <span className="group-meta">{group.spriteIds.length} sprites</span>
-                  <select
-                    className="select group-select"
-                    value={group.atlas ?? ''}
-                    disabled={busy}
-                    onChange={(event) => void assign(group, event.target.value)}
-                  >
-                    <option value="">Sin asignar</option>
-                    {atlases.map((atlas) => (
-                      <option key={atlas.name} value={atlas.name}>
-                        {atlas.name}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="group-select">
+                    <Select
+                      value={group.atlas ?? noAtlasValue}
+                      disabled={busy}
+                      onValueChange={(value) =>
+                        void assign(group, value === noAtlasValue ? '' : value)
+                      }
+                    >
+                      <SelectTrigger size="sm">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={noAtlasValue} className="pixel-font text-[10px]">
+                          Sin asignar
+                        </SelectItem>
+                        {atlases.map((atlas) => (
+                          <SelectItem
+                            key={atlas.name}
+                            value={atlas.name}
+                            className="pixel-font text-[10px]"
+                          >
+                            {atlas.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </li>
               ))}
             </ul>
@@ -197,22 +222,21 @@ function AtlasCard({ atlas, knownGroups, busy, onSave, onRemove }: AtlasCardProp
         <span className="atlas-card-meta">
           {atlas.spriteCount} sprites · {atlas.groups.length} grupos
         </span>
-        <button
-          type="button"
-          className="btn btn-icon btn-sm"
+        <Button
+          variant="ghost"
+          size="icon-sm"
           title="Eliminar atlas"
           aria-label={`Eliminar atlas ${atlas.name}`}
           disabled={busy}
           onClick={onRemove}
         >
-          <Trash2 size={13} />
-        </button>
+          <Delete width={24} height={24} />
+        </Button>
       </header>
       <div className="atlas-edit-row">
         <label className="field inline-field">
           <span className="field-label">Tamaño</span>
-          <input
-            className="input"
+          <Input
             type="number"
             min={1}
             max={8192}
@@ -223,8 +247,7 @@ function AtlasCard({ atlas, knownGroups, busy, onSave, onRemove }: AtlasCardProp
         </label>
         <label className="field inline-field">
           <span className="field-label">Gap</span>
-          <input
-            className="input"
+          <Input
             type="number"
             min={0}
             value={gap}
@@ -232,14 +255,13 @@ function AtlasCard({ atlas, knownGroups, busy, onSave, onRemove }: AtlasCardProp
             onChange={(event) => setGap(event.target.value)}
           />
         </label>
-        <button
-          type="button"
-          className="btn btn-sm"
+        <Button
+          size="sm"
           disabled={busy || !dirty}
           onClick={() => onSave(Number(size), Number(gap))}
         >
           Guardar
-        </button>
+        </Button>
       </div>
       {atlas.groups.length > 0 ? (
         <ul className="atlas-chips">
@@ -253,7 +275,7 @@ function AtlasCard({ atlas, knownGroups, busy, onSave, onRemove }: AtlasCardProp
                   : 'Este grupo ya no existe entre los IDs actuales'
               }
             >
-              {knownGroups.has(group) ? null : <AlertTriangle size={11} />}
+              {knownGroups.has(group) ? null : <WarningDiamond width={16} height={16} />}
               {group}
             </li>
           ))}
@@ -269,7 +291,7 @@ function PlanCheckPanel({ check }: { check: PlanCheck | null }) {
   if (!check) {
     return (
       <div className="plan-check">
-        <Loader2 size={14} className="spin" />
+        <PixelSpinner width={24} height={24} />
         <p>Comprobando…</p>
       </div>
     );
@@ -277,7 +299,7 @@ function PlanCheckPanel({ check }: { check: PlanCheck | null }) {
   if (check.status === 'error') {
     return (
       <div className="plan-check is-error">
-        <AlertTriangle size={14} />
+        <WarningDiamond width={24} height={24} />
         <p>{check.message}</p>
       </div>
     );
@@ -291,7 +313,7 @@ function PlanCheckPanel({ check }: { check: PlanCheck | null }) {
   }
   return (
     <div className="plan-check is-ok">
-      <CheckCircle2 size={14} />
+      <Check width={24} height={24} />
       <div>
         <p>
           Listo para construir: {pages.length} página(s), {sprites} sprites, {animations}{' '}
@@ -343,20 +365,15 @@ function NewAtlasDialog({ busy, onSubmit, onClose }: NewAtlasDialogProps) {
     <Modal
       title="Nuevo atlas"
       onClose={onClose}
-      width={520}
+      width={560}
       footer={
         <>
-          <button type="button" className="btn" onClick={onClose} disabled={working || busy}>
+          <Button onClick={onClose} disabled={working || busy}>
             Cancelar
-          </button>
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={() => void submit()}
-            disabled={working || busy}
-          >
+          </Button>
+          <Button variant="primary" onClick={() => void submit()} disabled={working || busy}>
             {working ? 'Creando…' : 'Crear atlas'}
-          </button>
+          </Button>
         </>
       }
     >
@@ -364,8 +381,8 @@ function NewAtlasDialog({ busy, onSubmit, onClose }: NewAtlasDialogProps) {
         label="Nombre"
         hint="Letras, números, guiones y guiones bajos. Sin rutas ni extensión."
       >
-        <input
-          className="input mono"
+        <Input
+          className="mono"
           value={name}
           autoFocus
           placeholder="characters"
@@ -374,8 +391,7 @@ function NewAtlasDialog({ busy, onSubmit, onClose }: NewAtlasDialogProps) {
       </Field>
       <div className="grid-2">
         <Field label="Tamaño (px)" hint="Ancho y alto de cada página; entero entre 1 y 8192.">
-          <input
-            className="input"
+          <Input
             type="number"
             min={1}
             max={8192}
@@ -387,8 +403,7 @@ function NewAtlasDialog({ busy, onSubmit, onClose }: NewAtlasDialogProps) {
           label="Gap (px)"
           hint="Espacio transparente entre sprites y filas; menor que el tamaño."
         >
-          <input
-            className="input"
+          <Input
             type="number"
             min={0}
             value={gap}

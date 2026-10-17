@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { isDesktopApp } from '../adapters/environment.js';
 import { subscribeOpenRepository } from '../adapters/tauri/deep-link.js';
 import { ToastProvider } from '../components/Toast.js';
+import { TooltipProvider } from '../components/ui/pixelact-ui/tooltip.js';
 import { LauncherScreen } from '../features/project/LauncherScreen.js';
 import { ProjectScreen } from '../features/project/ProjectScreen.js';
 
@@ -31,13 +32,15 @@ export function App() {
   if (!desktop) return <BrowserNotice />;
 
   return (
-    <ToastProvider>
-      {view.kind === 'launcher' ? (
-        <LauncherScreen onOpen={(root) => setView({ kind: 'project', root })} />
-      ) : (
-        <ProjectScreen root={view.root} onClose={() => setView({ kind: 'launcher' })} />
-      )}
-    </ToastProvider>
+    <TooltipProvider>
+      <ToastProvider>
+        {view.kind === 'launcher' ? (
+          <LauncherScreen onOpen={(root) => setView({ kind: 'project', root })} />
+        ) : (
+          <ProjectScreen root={view.root} onClose={() => setView({ kind: 'launcher' })} />
+        )}
+      </ToastProvider>
+    </TooltipProvider>
   );
 }
 

@@ -1,9 +1,14 @@
 import { useEffect, useState } from 'react';
+import { ArrowLeft } from 'pixelarticons/react/ArrowLeft.js';
+import { Download } from 'pixelarticons/react/Download.js';
+import { Folder } from 'pixelarticons/react/Folder.js';
+import { Reload } from 'pixelarticons/react/Reload.js';
+import { Shield } from 'pixelarticons/react/Shield.js';
+import { revealItemInDir } from '@tauri-apps/plugin-opener';
+import { Button } from '../../components/Button.js';
 import { Modal } from '../../components/Modal.js';
 import { EmptyState } from '../../components/Field.js';
 import { useToast } from '../../components/Toast.js';
-import { revealItemInDir } from '@tauri-apps/plugin-opener';
-import { ArrowLeft, FolderOpen, HardDriveDownload, RefreshCw, ShieldCheck } from 'lucide-react';
 import { RepositoryProvider, describeError, useRepository } from './repository-context.js';
 import { rememberProject } from './recents.js';
 import { ExplorerPanel } from '../explorer/ExplorerPanel.js';
@@ -73,14 +78,9 @@ function ProjectWorkspace({ onClose }: { onClose: () => void }) {
   return (
     <div className="project-screen">
       <header className="project-header">
-        <button
-          type="button"
-          className="btn btn-icon"
-          aria-label="Volver al inicio"
-          onClick={onClose}
-        >
-          <ArrowLeft size={16} />
-        </button>
+        <Button variant="ghost" size="icon" aria-label="Volver al inicio" onClick={onClose}>
+          <ArrowLeft width={24} height={24} />
+        </Button>
         <div className="project-title">
           <h1>{name}</h1>
           <span className="project-path" title={root}>
@@ -116,28 +116,25 @@ function ProjectWorkspace({ onClose }: { onClose: () => void }) {
           <span className="stat">Esquema {database.schemaVersion}</span>
         </div>
         <div className="project-actions">
-          <button
-            type="button"
-            className="btn"
+          <Button
             disabled={busy}
             onClick={() => setBuildOpen(true)}
             title="Generar páginas PNG, JSON e index.json"
           >
-            <HardDriveDownload size={15} /> Generar
-          </button>
-          <button type="button" className="btn" disabled={busy} onClick={() => void refresh()}>
-            <RefreshCw size={15} /> Recargar
-          </button>
-          <button type="button" className="btn" onClick={() => void validate()}>
-            <ShieldCheck size={15} /> Validar
-          </button>
-          <button
-            type="button"
-            className="btn"
+            <Download width={24} height={24} /> Generar
+          </Button>
+          <Button disabled={busy} onClick={() => void refresh()} title="Recargar el repositorio">
+            <Reload width={24} height={24} /> Recargar
+          </Button>
+          <Button onClick={() => void validate()} title="Validar las definiciones">
+            <Shield width={24} height={24} /> Validar
+          </Button>
+          <Button
+            title="Abrir la carpeta en el explorador"
             onClick={() => void revealItemInDir(root).catch(() => undefined)}
           >
-            <FolderOpen size={15} /> Carpeta
-          </button>
+            <Folder width={24} height={24} /> Carpeta
+          </Button>
         </div>
       </header>
 
@@ -167,11 +164,7 @@ function ProjectWorkspace({ onClose }: { onClose: () => void }) {
           title={`Validación: ${issues.length} problema(s)`}
           onClose={() => setIssues(null)}
           width={640}
-          footer={
-            <button type="button" className="btn" onClick={() => setIssues(null)}>
-              Cerrar
-            </button>
-          }
+          footer={<Button onClick={() => setIssues(null)}>Cerrar</Button>}
         >
           <ul className="issue-list">
             {issues.map((issue) => (

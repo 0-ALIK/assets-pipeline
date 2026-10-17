@@ -1,23 +1,26 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
-import {
-  ChevronDown,
-  ChevronRight,
-  File,
-  Folder,
-  FolderOpen,
-  FolderPlus,
-  Image,
-  Link2,
-  MoreHorizontal,
-  MoveRight,
-  Pencil,
-  Play,
-  RefreshCw,
-  Trash2,
-  TriangleAlert,
-} from 'lucide-react';
+import { ChevronDown } from 'pixelarticons/react/ChevronDown.js';
+import { ChevronRight } from 'pixelarticons/react/ChevronRight.js';
+import { Delete } from 'pixelarticons/react/Delete.js';
+import { File } from 'pixelarticons/react/File.js';
+import { Folder } from 'pixelarticons/react/Folder.js';
+import { FolderPlus } from 'pixelarticons/react/FolderPlus.js';
+import { Image } from 'pixelarticons/react/Image.js';
+import { Link } from 'pixelarticons/react/Link.js';
+import { MoreHorizontal } from 'pixelarticons/react/MoreHorizontal.js';
+import { Move } from 'pixelarticons/react/Move.js';
+import { Pencil } from 'pixelarticons/react/Pencil.js';
+import { Reload } from 'pixelarticons/react/Reload.js';
+import { WarningDiamond } from 'pixelarticons/react/WarningDiamond.js';
 import { isSupportedSource } from '@assets-pipeline/core';
+import { Button } from '../../components/Button.js';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '../../components/ui/dropdown-menu.js';
 import { useRepository } from '../project/repository-context.js';
 import { ancestorDirectories, buildFileTree } from './tree.js';
 import type { TreeNode } from './tree.js';
@@ -35,12 +38,6 @@ type DialogState =
   | { readonly kind: 'remove'; readonly path: string }
   | null;
 
-interface MenuState {
-  readonly node: TreeNode;
-  readonly x: number;
-  readonly y: number;
-}
-
 interface SourceCounts {
   readonly sprites: number;
   readonly animations: number;
@@ -50,7 +47,6 @@ export function ExplorerPanel({ selectedPath, onSelect }: ExplorerPanelProps) {
   const { files, database, busy, refresh } = useRepository();
   const tree = useMemo(() => buildFileTree(files), [files]);
   const [expanded, setExpanded] = useState<ReadonlySet<string>>(() => new Set());
-  const [menu, setMenu] = useState<MenuState | null>(null);
   const [dialog, setDialog] = useState<DialogState>(null);
 
   useEffect(() => {
@@ -79,28 +75,35 @@ export function ExplorerPanel({ selectedPath, onSelect }: ExplorerPanelProps) {
     };
   };
 
+  const handleAction = (kind: 'new-folder' | 'rename' | 'move' | 'remove', path: string): void => {
+    if (kind === 'new-folder') setDialog({ kind: 'new-folder', parent: path });
+    else if (kind === 'rename') setDialog({ kind: 'rename', path });
+    else if (kind === 'move') setDialog({ kind: 'move', path });
+    else setDialog({ kind: 'remove', path });
+  };
+
   return (
     <aside className="explorer-panel" aria-label="Archivos del repositorio">
       <div className="explorer-toolbar">
         <span className="explorer-title">Archivos</span>
         <div className="explorer-toolbar-actions">
-          {busy ? <span className="spinner" aria-hidden="true" /> : null}
-          <button
-            type="button"
-            className="btn btn-sm"
+          <Button
+            size="sm"
             onClick={() => setDialog({ kind: 'new-folder', parent: '' })}
+            title="Crear una carpeta"
           >
-            <FolderPlus size={14} /> Carpeta
-          </button>
-          <button
-            type="button"
-            className="btn btn-sm btn-icon"
+            <FolderPlus width={24} height={24} /> Carpeta
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon-sm"
             aria-label="Recargar archivos"
+            title="Recargar archivos"
             disabled={busy}
             onClick={() => void refresh()}
           >
-            <RefreshCw size={14} />
-          </button>
+            <Reload width={24} height={24} />
+          </Button>
         </div>
       </div>
 
@@ -119,7 +122,7 @@ export function ExplorerPanel({ selectedPath, onSelect }: ExplorerPanelProps) {
               selectedPath={selectedPath}
               toggle={toggle}
               onSelect={onSelect}
-              onMenu={(target, x, y) => setMenu({ node: target, x, y })}
+              onAction={handleAction}
               countsOf={countsOf}
             />
           ))
@@ -130,49 +133,9 @@ export function ExplorerPanel({ selectedPath, onSelect }: ExplorerPanelProps) {
         <span className="def-dot" aria-hidden="true" />
         <span>con definiciones</span>
         <span className="legend-sep" aria-hidden="true" />
-        <TriangleAlert size={12} aria-hidden="true" />
+        <WarningDiamond width={16} height={16} aria-hidden="true" />
         <span>sin archivo</span>
       </footer>
-
-      {menu ? (
-        <ContextMenu x={menu.x} y={menu.y} onClose={() => setMenu(null)}>
-          {menu.node.kind === 'directory' ? (
-            <MenuItem
-              icon={<FolderPlus size={14} />}
-              label="Nueva carpeta aquí"
-              onSelect={() => {
-                setDialog({ kind: 'new-folder', parent: menu.node.path });
-                setMenu(null);
-              }}
-            />
-          ) : null}
-          <MenuItem
-            icon={<Pencil size={14} />}
-            label="Renombrar"
-            onSelect={() => {
-              setDialog({ kind: 'rename', path: menu.node.path });
-              setMenu(null);
-            }}
-          />
-          <MenuItem
-            icon={<MoveRight size={14} />}
-            label="Mover a…"
-            onSelect={() => {
-              setDialog({ kind: 'move', path: menu.node.path });
-              setMenu(null);
-            }}
-          />
-          <MenuItem
-            icon={<Trash2 size={14} />}
-            label="Eliminar"
-            danger
-            onSelect={() => {
-              setDialog({ kind: 'remove', path: menu.node.path });
-              setMenu(null);
-            }}
-          />
-        </ContextMenu>
-      ) : null}
 
       {dialog?.kind === 'new-folder' ? (
         <NewFolderDialog parent={dialog.parent} onClose={() => setDialog(null)} />
@@ -197,7 +160,7 @@ interface TreeRowProps {
   readonly selectedPath: string | null;
   readonly toggle: (path: string) => void;
   readonly onSelect: (path: string | null) => void;
-  readonly onMenu: (node: TreeNode, x: number, y: number) => void;
+  readonly onAction: (kind: 'new-folder' | 'rename' | 'move' | 'remove', path: string) => void;
   readonly countsOf: (path: string) => SourceCounts;
 }
 
@@ -208,7 +171,7 @@ function TreeRow({
   selectedPath,
   toggle,
   onSelect,
-  onMenu,
+  onAction,
   countsOf,
 }: TreeRowProps) {
   const isDirectory = node.kind === 'directory';
@@ -218,16 +181,16 @@ function TreeRow({
   const counts = managed ? countsOf(node.path) : { sprites: 0, animations: 0 };
 
   let icon: ReactNode;
-  if (node.kind === 'symlink') icon = <Link2 size={14} />;
-  else if (isDirectory) icon = isOpen ? <FolderOpen size={14} /> : <Folder size={14} />;
-  else if (managed) icon = <Image size={14} />;
-  else icon = <File size={14} />;
+  if (node.kind === 'symlink') icon = <Link width={24} height={24} />;
+  else if (isDirectory) icon = <Folder width={24} height={24} />;
+  else if (managed) icon = <Image width={24} height={24} />;
+  else icon = <File width={24} height={24} />;
 
   return (
     <>
       <div
         className={`tree-row${selected ? ' is-selected' : ''}${node.status === 'missing' ? ' is-missing' : ''}`}
-        style={{ paddingLeft: `${6 + depth * 14}px` }}
+        style={{ paddingLeft: `${6 + depth * 16}px` }}
         role="treeitem"
         aria-selected={selected}
         aria-expanded={isDirectory ? isOpen : undefined}
@@ -239,7 +202,11 @@ function TreeRow({
             aria-label={isOpen ? 'Contraer' : 'Expandir'}
             onClick={() => toggle(node.path)}
           >
-            {isOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+            {isOpen ? (
+              <ChevronDown width={24} height={24} />
+            ) : (
+              <ChevronRight width={24} height={24} />
+            )}
           </button>
         ) : (
           <span className="tree-toggle" aria-hidden="true" />
@@ -261,32 +228,55 @@ function TreeRow({
         {node.status === 'defined' ? <span className="def-dot" title="Con definiciones" /> : null}
         {node.status === 'missing' ? (
           <span className="missing-badge" title="La ruta está en db.json pero el archivo no existe">
-            <TriangleAlert size={13} />
+            <WarningDiamond width={20} height={20} />
           </span>
         ) : null}
         {counts.sprites > 0 ? (
           <span className="count-badge" title={`${counts.sprites} sprites`}>
-            {counts.sprites}
+            {counts.sprites} sp
           </span>
         ) : null}
         {counts.animations > 0 ? (
           <span className="count-badge badge-anim" title={`${counts.animations} animaciones`}>
-            <Play size={10} />
-            {counts.animations}
+            {counts.animations} an
           </span>
         ) : null}
         {isDirectory || managed ? (
-          <button
-            type="button"
-            className="tree-more"
-            aria-label={`Acciones para ${node.name}`}
-            onClick={(event) => {
-              const rect = event.currentTarget.getBoundingClientRect();
-              onMenu(node, rect.left, rect.bottom + 4);
-            }}
-          >
-            <MoreHorizontal size={14} />
-          </button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button type="button" className="tree-more" aria-label={`Acciones para ${node.name}`}>
+                <MoreHorizontal width={20} height={20} />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" sideOffset={6} className="pixel-menu">
+              {isDirectory ? (
+                <DropdownMenuItem
+                  className="pixel-font text-[10px] gap-2 cursor-pointer"
+                  onSelect={() => onAction('new-folder', node.path)}
+                >
+                  <FolderPlus width={20} height={20} /> Nueva carpeta aquí
+                </DropdownMenuItem>
+              ) : null}
+              <DropdownMenuItem
+                className="pixel-font text-[10px] gap-2 cursor-pointer"
+                onSelect={() => onAction('rename', node.path)}
+              >
+                <Pencil width={20} height={20} /> Renombrar
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="pixel-font text-[10px] gap-2 cursor-pointer"
+                onSelect={() => onAction('move', node.path)}
+              >
+                <Move width={20} height={20} /> Mover a…
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="pixel-font text-[10px] gap-2 cursor-pointer text-destructive focus:text-destructive"
+                onSelect={() => onAction('remove', node.path)}
+              >
+                <Delete width={20} height={20} /> Eliminar
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         ) : null}
       </div>
       {isDirectory && isOpen
@@ -299,66 +289,11 @@ function TreeRow({
               selectedPath={selectedPath}
               toggle={toggle}
               onSelect={onSelect}
-              onMenu={onMenu}
+              onAction={onAction}
               countsOf={countsOf}
             />
           ))
         : null}
     </>
-  );
-}
-
-interface ContextMenuProps {
-  readonly x: number;
-  readonly y: number;
-  readonly onClose: () => void;
-  readonly children: ReactNode;
-}
-
-function ContextMenu({ x, y, onClose, children }: ContextMenuProps) {
-  useEffect(() => {
-    const handlePointer = (): void => onClose();
-    const handleKey = (event: KeyboardEvent): void => {
-      if (event.key === 'Escape') onClose();
-    };
-    window.addEventListener('pointerdown', handlePointer);
-    window.addEventListener('keydown', handleKey);
-    return () => {
-      window.removeEventListener('pointerdown', handlePointer);
-      window.removeEventListener('keydown', handleKey);
-    };
-  }, [onClose]);
-
-  return (
-    <div
-      className="context-menu"
-      style={{
-        left: Math.min(x, window.innerWidth - 220),
-        top: Math.min(y, window.innerHeight - 200),
-      }}
-      onPointerDown={(event) => event.stopPropagation()}
-    >
-      {children}
-    </div>
-  );
-}
-
-interface MenuItemProps {
-  readonly icon: ReactNode;
-  readonly label: string;
-  readonly danger?: boolean;
-  readonly onSelect: () => void;
-}
-
-function MenuItem({ icon, label, danger, onSelect }: MenuItemProps) {
-  return (
-    <button
-      type="button"
-      className={`context-menu-item${danger ? ' is-danger' : ''}`}
-      onClick={onSelect}
-    >
-      {icon}
-      {label}
-    </button>
   );
 }
