@@ -15,6 +15,9 @@ import {
   findRepository,
   NodeManagedFiles,
 } from './adapters/node-files.js';
+import { NodeAtlasBuilder } from './adapters/node-atlas-builder.js';
+import { createNodeEventPublisher } from './adapters/node-events.js';
+import { createNodeImporters } from './adapters/node-importers.js';
 
 export interface CliContext {
   readonly root: string;
@@ -27,12 +30,16 @@ export function createContext(root: string): CliContext {
     fileSystem: createNodeRepositoryFileSystem(),
     validate: validateRepositoryDatabase,
   });
+  const events = createNodeEventPublisher();
   return {
     root,
     workspace: new RepositoryWorkspace({
       store,
       files: new NodeManagedFiles(root),
       now: () => new Date().toISOString(),
+      importers: createNodeImporters(root),
+      builder: new NodeAtlasBuilder(),
+      ...(events ? { events } : {}),
     }),
   };
 }

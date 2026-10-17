@@ -1,5 +1,5 @@
 import type { Command } from 'commander';
-import { buildAtlases } from '../adapters/node-atlas-builder.js';
+import { publishBuildOutput } from '../adapters/node-build-output.js';
 import { withContext } from '../context.js';
 
 export function addBuildCommand(program: Command): void {
@@ -10,8 +10,8 @@ export function addBuildCommand(program: Command): void {
     .option('--clean', 'Descartar cualquier resultado intermedio (el build actual ya es completo)')
     .action(async (options: { output: string; clean?: boolean }) => {
       await withContext(program, true, async ({ root, workspace }) => {
-        const plan = await workspace.planBuild();
-        const result = await buildAtlases(root, options.output, plan);
+        const artifacts = await workspace.buildAssets(options.output);
+        const result = await publishBuildOutput(root, options.output, artifacts);
         process.stdout.write(
           `Build completado en ${result.output}\n${result.files.map((file) => `  ${file}`).join('\n')}\n`,
         );

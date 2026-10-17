@@ -86,6 +86,8 @@ export { makeDirectory } from './application/use-cases/files/make-directory.js';
 /** Application services shared by use cases. */
 export { readRepository, changeRepository } from './application/services/change-repository.js';
 export { planPathChange } from './application/services/path-change-planner.js';
+export { buildAssets } from './application/services/build-assets.js';
+export type { BuildAssetsInput, ImportedSource } from './application/services/build-assets.js';
 
 export { planAtlasBuild } from './builders/packing/pack-atlases.js';
 export type {

@@ -1,5 +1,6 @@
 import type { AtlasBuildPlan } from '../builders/packing/pack-atlases.js';
 import type { Pivot, Rectangle, RepositoryDatabase } from '../domain/repository.js';
+import type { BuildArtifact } from '../ports/asset-builder.js';
 import type { UseCaseContext } from './context.js';
 import type {
   AnimationLocation,
@@ -10,6 +11,7 @@ import type {
   SpriteLocation,
 } from './dto/repository-dto.js';
 import { readRepository } from './services/change-repository.js';
+import { buildAssets as buildAssetsUseCase } from './services/build-assets.js';
 import { addAnimation as addAnimationUseCase } from './use-cases/animations/add-animation.js';
 import { removeAnimation as removeAnimationUseCase } from './use-cases/animations/remove-animation.js';
 import { renameAnimation as renameAnimationUseCase } from './use-cases/animations/rename-animation.js';
@@ -129,6 +131,11 @@ export class RepositoryWorkspace {
 
   async planBuild(): Promise<AtlasBuildPlan> {
     return planBuildUseCase(this.context);
+  }
+
+  /** Plans and renders the atlas build through the injected builder. */
+  async buildAssets(output?: string): Promise<readonly BuildArtifact[]> {
+    return buildAssetsUseCase(this.context, output === undefined ? {} : { output });
   }
 
   async listSprites(path: string): Promise<readonly SpriteLocation[]> {
