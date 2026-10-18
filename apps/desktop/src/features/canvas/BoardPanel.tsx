@@ -28,7 +28,7 @@ import { PixelCanvas } from './PixelCanvas.js';
 import type { PointerInfo, PointerPhase } from './PixelCanvas.js';
 import { NewSpriteDialog } from './NewSpriteDialog.js';
 import { SpritePanel } from './SpritePanel.js';
-import type { SpriteDraft } from './SpritePanel.js';
+import { EditSpriteDialog } from './EditSpriteDialog.js';
 import { AnimationPanel } from './AnimationPanel.js';
 import { NewAnimationDialog } from './NewAnimationDialog.js';
 import type { AnimationFrameInput } from './NewAnimationDialog.js';
@@ -59,6 +59,14 @@ type DragState =
     }
   | { readonly kind: 'pivot'; readonly startRect: Rect }
   | { readonly kind: 'draw'; readonly start: Point };
+
+/** Values being edited for one sprite (canvas drags and the edit dialog). */
+interface SpriteDraft {
+  readonly originalId: string;
+  readonly id: string;
+  readonly rect: Rect;
+  readonly pivot: Pivot;
+}
 
 const zoomSteps = [1, 2, 3, 4, 5, 6, 8, 10, 12, 16, 24, 32];
 
@@ -100,6 +108,7 @@ export function BoardPanel({ root, path }: BoardPanelProps) {
   const [drawMode, setDrawMode] = useState(false);
   const [drawRect, setDrawRect] = useState<Rect | null>(null);
   const [newSprite, setNewSprite] = useState<{ rect: Rect | null } | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [duplicateOf, setDuplicateOf] = useState<string | null>(null);
   const [playingAnimationId, setPlayingAnimationId] = useState<string | null>(null);
   const [newAnimationOpen, setNewAnimationOpen] = useState(false);
@@ -115,6 +124,7 @@ export function BoardPanel({ root, path }: BoardPanelProps) {
   // A renamed or deleted sprite may not be in the database yet; derive the
   // effective selection from the current definitions.
   const activeSelectedId = selectedId && sprites[selectedId] ? selectedId : null;
+  const activeEditingId = editingId && sprites[editingId] ? editingId : null;
   const bounds: CanvasBounds = { width: image?.width ?? 0, height: image?.height ?? 0 };
   const activeAnimationId =
     playingAnimationId && animations[playingAnimationId] ? playingAnimationId : null;
@@ -132,6 +142,7 @@ export function BoardPanel({ root, path }: BoardPanelProps) {
     setDrawMode(false);
     setDrawRect(null);
     setNewSprite(null);
+    setEditingId(null);
     setDuplicateOf(null);
     setPlayingAnimationId(null);
     setNewAnimationOpen(false);
@@ -691,15 +702,12 @@ export function BoardPanel({ root, path }: BoardPanelProps) {
           spriteIds={spriteIds}
           selectedId={activeSelectedId}
           hoveredId={hoveredId}
-          draft={draft}
           busy={busy}
-          onSelect={selectSprite}
-          onHover={setHoveredId}
-          onDraft={setDraftSync}
-          onApply={() => {
-            if (draftRef.current) void commitDraft(draftRef.current);
+          onSelect={(id) => {
+            selectSprite(id);
+            setEditingId(id);
           }}
-          onReset={() => selectSprite(activeSelectedId)}
+          onHover={setHoveredId}
           onNew={() => setNewSprite({ rect: null })}
           onDuplicate={(id) => setDuplicateOf(id)}
           onDelete={(id) => void deleteSprite(id)}
@@ -727,6 +735,28 @@ export function BoardPanel({ root, path }: BoardPanelProps) {
           }}
           onSubmit={submitNewSprite}
           onClose={() => setNewSprite(null)}
+        />
+      ) : null}
+
+      {activeEditingId ? (
+        <EditSpriteDialog
+          spriteId={activeEditingId}
+          sprite={sprites[activeEditingId]!}
+          imageWidth={bounds.width}
+          imageHeight={bounds.height}
+          busy={busy}
+          onSubmit={async (values) => {
+            const target = activeEditingId;
+            const ok = await commitDraft({
+              originalId: target,
+              id: values.id,
+              rect: values.rect,
+              pivot: values.pivot,
+            });
+            if (ok) setEditingId(null);
+            return ok;
+          }}
+          onClose={() => setEditingId(null)}
         />
       ) : null}
 
