@@ -675,7 +675,12 @@ export function BoardPanel({ root, path }: BoardPanelProps) {
             <span className="side-hint">
               Rueda: zoom · Espacio o botón central: mover vista · Flechas: ajuste fino
             </span>
-            {imageLoading ? <span className="side-hint">Cargando imagen…</span> : null}
+            <div className="board-footer-meta">
+              <span className="board-cursor mono">
+                {cursor ? `x: ${Math.floor(cursor.x)} · y: ${Math.floor(cursor.y)}` : '—'}
+              </span>
+              {imageLoading ? <span className="side-hint">Cargando imagen…</span> : null}
+            </div>
           </footer>
         </div>
       )}
@@ -688,7 +693,6 @@ export function BoardPanel({ root, path }: BoardPanelProps) {
           hoveredId={hoveredId}
           draft={draft}
           busy={busy}
-          cursor={cursor}
           onSelect={selectSprite}
           onHover={setHoveredId}
           onDraft={setDraftSync}

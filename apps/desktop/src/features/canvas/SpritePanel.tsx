@@ -4,7 +4,7 @@ import { Plus } from 'pixelarticons/react/Plus.js';
 import type { SpriteDefinition } from '@assets-pipeline/core';
 import { Button } from '../../components/Button.js';
 import { Input } from '../../components/ui/pixelact-ui/input.js';
-import type { Point, Pivot, Rect } from './sprite-editor.js';
+import type { Pivot, Rect } from './sprite-editor.js';
 
 export interface SpriteDraft {
   readonly originalId: string;
@@ -20,7 +20,6 @@ interface SpritePanelProps {
   readonly hoveredId: string | null;
   readonly draft: SpriteDraft | null;
   readonly busy: boolean;
-  readonly cursor: Point | null;
   readonly onSelect: (id: string | null) => void;
   readonly onHover: (id: string | null) => void;
   readonly onDraft: (draft: SpriteDraft) => void;
@@ -38,7 +37,6 @@ export function SpritePanel({
   hoveredId,
   draft,
   busy,
-  cursor,
   onSelect,
   onHover,
   onDraft,
@@ -172,17 +170,6 @@ export function SpritePanel({
           </div>
         </form>
       ) : null}
-
-      <footer className="side-footer">
-        {cursor ? (
-          <span className="mono">
-            {Math.floor(cursor.x)}, {Math.floor(cursor.y)}
-          </span>
-        ) : (
-          <span />
-        )}
-        <span className="side-hint">Rueda: zoom · Espacio/central: mover vista</span>
-      </footer>
     </section>
   );
 }
