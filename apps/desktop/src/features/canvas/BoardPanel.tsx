@@ -27,6 +27,7 @@ import { useRepository } from '../project/repository-context.js';
 import { PixelCanvas } from './PixelCanvas.js';
 import type { PointerInfo, PointerPhase } from './PixelCanvas.js';
 import { NewSpriteDialog } from './NewSpriteDialog.js';
+import { AutoRegionDialog } from './AutoRegionDialog.js';
 import { SpritePanel } from './SpritePanel.js';
 import { EditSpriteDialog } from './EditSpriteDialog.js';
 import { AnimationPanel } from './AnimationPanel.js';
@@ -108,6 +109,7 @@ export function BoardPanel({ root, path }: BoardPanelProps) {
   const [drawMode, setDrawMode] = useState(false);
   const [drawRect, setDrawRect] = useState<Rect | null>(null);
   const [newSprite, setNewSprite] = useState<{ rect: Rect | null } | null>(null);
+  const [autoRegionOpen, setAutoRegionOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [duplicateOf, setDuplicateOf] = useState<string | null>(null);
   const [playingAnimationId, setPlayingAnimationId] = useState<string | null>(null);
@@ -142,6 +144,7 @@ export function BoardPanel({ root, path }: BoardPanelProps) {
     setDrawMode(false);
     setDrawRect(null);
     setNewSprite(null);
+    setAutoRegionOpen(false);
     setEditingId(null);
     setDuplicateOf(null);
     setPlayingAnimationId(null);
@@ -709,6 +712,7 @@ export function BoardPanel({ root, path }: BoardPanelProps) {
           }}
           onHover={setHoveredId}
           onNew={() => setNewSprite({ rect: null })}
+          onAutoRegion={() => setAutoRegionOpen(true)}
           onDuplicate={(id) => setDuplicateOf(id)}
           onDelete={(id) => void deleteSprite(id)}
         />
@@ -772,6 +776,18 @@ export function BoardPanel({ root, path }: BoardPanelProps) {
             }
             return ok;
           }}
+        />
+      ) : null}
+
+      {autoRegionOpen ? (
+        <AutoRegionDialog
+          path={path}
+          onApply={(padding) =>
+            mutate(async (workspace) => {
+              await workspace.autoRegionSprites(path, { padding });
+            })
+          }
+          onClose={() => setAutoRegionOpen(false)}
         />
       ) : null}
 

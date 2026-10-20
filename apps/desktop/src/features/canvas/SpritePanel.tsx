@@ -1,8 +1,12 @@
+import { useState } from 'react';
 import { Copy } from 'pixelarticons/react/Copy.js';
 import { Delete } from 'pixelarticons/react/Delete.js';
 import { Plus } from 'pixelarticons/react/Plus.js';
+import { Search } from 'pixelarticons/react/Search.js';
+import { Sparkles } from 'pixelarticons/react/Sparkles.js';
 import type { SpriteDefinition } from '@assets-pipeline/core';
 import { Button } from '../../components/Button.js';
+import { Input } from '../../components/ui/pixelact-ui/input.js';
 
 interface SpritePanelProps {
   readonly sprites: Readonly<Record<string, SpriteDefinition>>;
@@ -14,6 +18,7 @@ interface SpritePanelProps {
   readonly onSelect: (id: string) => void;
   readonly onHover: (id: string | null) => void;
   readonly onNew: () => void;
+  readonly onAutoRegion: () => void;
   readonly onDuplicate: (id: string) => void;
   readonly onDelete: (id: string) => void;
 }
@@ -27,27 +32,56 @@ export function SpritePanel({
   onSelect,
   onHover,
   onNew,
+  onAutoRegion,
   onDuplicate,
   onDelete,
 }: SpritePanelProps) {
+  const [query, setQuery] = useState('');
+  const needle = query.trim().toLowerCase();
+  const visibleIds = needle
+    ? spriteIds.filter((id) => id.toLowerCase().includes(needle))
+    : spriteIds;
+
   return (
     <section className="side-section" aria-label="Sprites">
       <header className="side-section-header">
         <h3>
-          Sprites <span className="side-count">{spriteIds.length}</span>
+          Sprites{' '}
+          <span className="side-count">
+            {needle ? `${visibleIds.length}/${spriteIds.length}` : spriteIds.length}
+          </span>
         </h3>
-        <Button size="sm" onClick={onNew} disabled={busy}>
-          <Plus width={24} height={24} /> Nuevo
-        </Button>
+        <div className="side-section-actions">
+          <Button size="sm" onClick={onAutoRegion} disabled={busy} title="Regiones automáticas">
+            <Sparkles width={24} height={24} /> Auto
+          </Button>
+          <Button size="sm" onClick={onNew} disabled={busy}>
+            <Plus width={24} height={24} /> Nuevo
+          </Button>
+        </div>
       </header>
+      {spriteIds.length > 0 ? (
+        <div className="side-search">
+          <Search width={24} height={24} aria-hidden="true" />
+          <Input
+            className="side-search-input"
+            value={query}
+            placeholder="Buscar sprites…"
+            aria-label="Buscar sprites"
+            onChange={(event) => setQuery(event.target.value)}
+          />
+        </div>
+      ) : null}
       {spriteIds.length === 0 ? (
         <p className="side-placeholder">
           Este archivo no tiene sprites definidos. Crea el primero con «Nuevo» o dibujando una
           región en el lienzo.
         </p>
+      ) : visibleIds.length === 0 ? (
+        <p className="side-placeholder">Sin resultados para «{query.trim()}».</p>
       ) : (
         <ul className="sprite-list">
-          {spriteIds.map((id) => {
+          {visibleIds.map((id) => {
             const sprite = sprites[id]!;
             return (
               <li

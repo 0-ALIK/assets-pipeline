@@ -58,20 +58,27 @@ Al seleccionar un PNG o Aseprite se muestra la imagen en un canvas con zoom ente
 ajuste automático, paneo con rueda, espacio o botón central. Los archivos `.aseprite` se
 renderizan desde su primer frame con todas las capas visibles.
 
-- **Sprites**: la lista del panel derecho resalta cada región al pasar el mouse. Al seleccionar un
-  sprite puedes arrastrarlo, redimensionarlo con las esquinas, arrastrar su pivote y ajustar
-  `id`, `x`, `y`, ancho, alto y pivote con el formulario. Las flechas del teclado ajustan 1 píxel
-  (con Shift, 8). Cada gesto se guarda al soltar el mouse.
+- **Sprites**: la lista del panel derecho resalta cada región al pasar el mouse y tiene un buscador
+  por ID. Al seleccionar un sprite se abre su **modal de edición**, donde puedes ajustar `id`, `x`,
+  `y`, ancho, alto y pivote; también puedes arrastrarlo, redimensionarlo con las esquinas y
+  arrastrar su pivote directamente en el canvas. Las flechas del teclado ajustan 1 píxel (con
+  Shift, 8). Cada gesto se guarda al soltar el mouse.
 - **Nuevo sprite**: desde el formulario o dibujando la región directamente sobre el canvas.
+- **Auto**: abre el generador de **regiones automáticas**. Muestra una advertencia (no respeta la
+  lógica del dibujo: partes sueltas, sombras o píxeles aislados también generan regiones), permite
+  fijar el **padding** alrededor de cada región y previsualiza el grupo y las cajas que creará
+  antes de aplicar. Las definiciones existentes nunca se solapan y volver a ejecutarlo solo añade
+  contenido nuevo. Usa los mismos casos de uso que `sprite auto` en la CLI.
 - **Duplicar** y **eliminar** sprites (eliminar exige confirmación y falla si una animación lo
   usa, igual que en la CLI).
 
 ### Animaciones
 
-Debajo de los sprites aparece la lista de animaciones del archivo. **Nueva** abre un editor para
-elegir sprites, orden y duración de cada frame y el modo `loop`/`once`. Al hacer clic en una
-animación, el canvas cambia al **reproductor**: dibuja cada frame anclando su pivote en el mismo
-punto, de modo que se ven de inmediato los saltos o desalineaciones.
+Debajo de los sprites aparece la lista de animaciones del archivo, con su propio buscador por ID.
+**Nueva** abre un editor para elegir sprites, orden y duración de cada frame y el modo
+`loop`/`once`. Al hacer clic en una animación, el canvas cambia al **reproductor**: dibuja cada
+frame anclando su pivote en el mismo punto, de modo que se ven de inmediato los saltos o
+desalineaciones.
 
 El reproductor también es un **editor de frames**:
 

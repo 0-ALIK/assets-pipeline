@@ -1,8 +1,11 @@
+import { useState } from 'react';
 import { Delete } from 'pixelarticons/react/Delete.js';
 import { Plus } from 'pixelarticons/react/Plus.js';
 import { Repeat } from 'pixelarticons/react/Repeat.js';
+import { Search } from 'pixelarticons/react/Search.js';
 import type { AnimationDefinition } from '@assets-pipeline/core';
 import { Button } from '../../components/Button.js';
+import { Input } from '../../components/ui/pixelact-ui/input.js';
 import { totalDuration } from '../preview/pivot-math.js';
 
 interface AnimationPanelProps {
@@ -26,23 +29,46 @@ export function AnimationPanel({
   onDelete,
   onTogglePlayback,
 }: AnimationPanelProps) {
+  const [query, setQuery] = useState('');
+  const needle = query.trim().toLowerCase();
+  const visibleIds = needle
+    ? animationIds.filter((id) => id.toLowerCase().includes(needle))
+    : animationIds;
+
   return (
     <section className="side-section" aria-label="Animaciones">
       <header className="side-section-header">
         <h3>
-          Animaciones <span className="side-count">{animationIds.length}</span>
+          Animaciones{' '}
+          <span className="side-count">
+            {needle ? `${visibleIds.length}/${animationIds.length}` : animationIds.length}
+          </span>
         </h3>
         <Button size="sm" onClick={onNew} disabled={busy}>
           <Plus width={24} height={24} /> Nueva
         </Button>
       </header>
+      {animationIds.length > 0 ? (
+        <div className="side-search">
+          <Search width={24} height={24} aria-hidden="true" />
+          <Input
+            className="side-search-input"
+            value={query}
+            placeholder="Buscar animaciones…"
+            aria-label="Buscar animaciones"
+            onChange={(event) => setQuery(event.target.value)}
+          />
+        </div>
+      ) : null}
       {animationIds.length === 0 ? (
         <p className="side-placeholder">
           Sin animaciones en este archivo. Crea una eligiendo sprites, orden y duración.
         </p>
+      ) : visibleIds.length === 0 ? (
+        <p className="side-placeholder">Sin resultados para «{query.trim()}».</p>
       ) : (
         <ul className="animation-list">
-          {animationIds.map((id) => {
+          {visibleIds.map((id) => {
             const animation = animations[id]!;
             return (
               <li key={id} className={`animation-item${id === activeId ? ' is-selected' : ''}`}>

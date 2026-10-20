@@ -4,6 +4,7 @@ import {
   validateRepositoryDatabase,
 } from '@assets-pipeline/core';
 import { call } from './commands.js';
+import { createTauriImporters } from './importers.js';
 import { TauriManagedFiles } from './managed-files.js';
 
 /** Reads and writes `.assets-pipeline-cache/db.json` through atomic Rust commands. */
@@ -22,6 +23,7 @@ export function createTauriWorkspace(root: string): RepositoryWorkspace {
     store,
     files: new TauriManagedFiles(root),
     now: () => new Date().toISOString(),
+    importers: createTauriImporters(root),
   });
 }
 

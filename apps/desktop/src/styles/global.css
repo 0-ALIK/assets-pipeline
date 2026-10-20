@@ -896,6 +896,9 @@
   }
 
   .plan-warning {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
     margin: 0 0 14px;
     padding: 10px 12px;
     background: rgb(255 255 255 / 10%);
@@ -903,6 +906,61 @@
     color: var(--warning);
     font-size: 13.5px;
     line-height: 1.6;
+  }
+
+  .plan-warning svg {
+    flex: none;
+  }
+
+  .auto-region-preview {
+    display: grid;
+    gap: 10px;
+  }
+
+  .auto-region-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    color: var(--text-dim);
+    font-size: 13.5px;
+    line-height: 1.6;
+  }
+
+  .auto-region-summary {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin: 0;
+    padding: 12px;
+    border: 2px solid var(--accent-strong);
+    background: var(--bg-elevated);
+    color: var(--text);
+    font-size: 13.5px;
+    line-height: 1.6;
+  }
+
+  .auto-region-summary svg {
+    flex: none;
+    color: var(--accent-strong);
+  }
+
+  .auto-region-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 4px;
+    max-height: 220px;
+    overflow: auto;
+    color: var(--text-dim);
+  }
+
+  .auto-region-list li {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 2px 0;
   }
 
   /* ---------- Board ---------- */
@@ -1106,6 +1164,31 @@
     font-family: var(--font-mono);
     font-size: 15px;
     letter-spacing: 0;
+  }
+
+  .side-section-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .side-search {
+    position: relative;
+    padding: 0 12px 10px;
+  }
+
+  .side-search svg {
+    position: absolute;
+    left: 22px;
+    top: calc(50% - 5px);
+    transform: translateY(-50%);
+    color: var(--text-faint);
+    pointer-events: none;
+  }
+
+  .side-search .side-search-input {
+    width: 100%;
+    padding-left: 40px;
   }
 
   .side-placeholder {
