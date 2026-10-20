@@ -10,7 +10,7 @@ salidas para el motor. El comando `watch` no existe todavía.
    `--repo`, `init`, `version`, `info`, `status`, `ls` y formato de `db.json`.
 2. [Sistema de archivos](02-sistema-de-archivos.md): `fs mkdir`, `fs rename`, `fs move`, `fs rm`,
    previsualización y confirmaciones.
-3. [Sprites](03-sprites.md): `sprite list`, `show`, `add`, `set`, `rename`, `duplicate` y `rm`.
+3. [Sprites](03-sprites.md): `sprite list`, `show`, `add`, `auto`, `set`, `rename`, `duplicate` y `rm`.
 4. [Animaciones](04-animaciones.md): definición y todos los subcomandos de `animation frame`.
 5. [Validación, scripts y errores](05-validacion-y-automatizacion.md): `validate`, límites de las
    comprobaciones, códigos de error y uso no interactivo.
@@ -21,16 +21,16 @@ salidas para el motor. El comando `watch` no existe todavía.
 
 ## Inventario de comandos
 
-| Grupo       | Comandos disponibles                                                                                       |
-| ----------- | ---------------------------------------------------------------------------------------------------------- |
-| General     | `version`, `open`, `init`, `info`, `status`, `ls`, `validate`, `help`                                      |
-| Archivos    | `fs mkdir`, `fs rename`, `fs move`, `fs rm`                                                                |
-| Sprites     | `sprite list`, `sprite show`, `sprite add`, `sprite set`, `sprite rename`, `sprite duplicate`, `sprite rm` |
-| Animaciones | `animation add`, `animation show`, `animation set`, `animation rename`, `animation rm`                     |
-| Frames      | `animation frame add`, `insert`, `set`, `move`, `rm`                                                       |
-| Grupos      | `group list`, `group show`                                                                                 |
-| Atlas       | `atlas list`, `show`, `add`, `set`, `rm`, `atlas group add`, `atlas group rm`                              |
-| Build       | `build`, `build --output`, `build --clean`                                                                 |
+| Grupo       | Comandos disponibles                                                                                                      |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------- |
+| General     | `version`, `open`, `init`, `info`, `status`, `ls`, `validate`, `help`                                                     |
+| Archivos    | `fs mkdir`, `fs rename`, `fs move`, `fs rm`                                                                               |
+| Sprites     | `sprite list`, `sprite show`, `sprite add`, `sprite auto`, `sprite set`, `sprite rename`, `sprite duplicate`, `sprite rm` |
+| Animaciones | `animation add`, `animation show`, `animation set`, `animation rename`, `animation rm`                                    |
+| Frames      | `animation frame add`, `insert`, `set`, `move`, `rm`                                                                      |
+| Grupos      | `group list`, `group show`                                                                                                |
+| Atlas       | `atlas list`, `show`, `add`, `set`, `rm`, `atlas group add`, `atlas group rm`                                             |
+| Build       | `build`, `build --output`, `build --clean`                                                                                |
 
 En los ejemplos se usa `assets-pipeline`, el ejecutable declarado por el paquete CLI. Para
 consultar la sintaxis instalada en tu equipo, usa `assets-pipeline --help` o añade `--help` a un

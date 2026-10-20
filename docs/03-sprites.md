@@ -2,11 +2,12 @@
 
 [Volver al índice](README.md) · [Repositorios y rutas](01-inicio-y-repositorio.md)
 
-Un sprite es una **región rectangular definida manualmente** sobre un archivo `.png` o
-`.aseprite`. La CLI lee las dimensiones de la cabecera para comprobar que el rectángulo cabe en
-el lienzo; no detecta automáticamente sprites, cels ni capas. Un archivo aparece como `defined`
-en `ls` cuando tiene al menos un sprite. Las definiciones viven en `db.json`, no alteran los
-píxeles del archivo fuente.
+Un sprite es una **región rectangular** sobre un archivo `.png` o `.aseprite`. Normalmente se
+define manualmente con `sprite add`, pero `sprite auto` puede generar regiones a partir del
+contenido opaco del archivo. La CLI lee las dimensiones de la cabecera para comprobar que cada
+rectángulo cabe en el lienzo; no detecta cels ni capas del formato Aseprite. Un archivo aparece
+como `defined` en `ls` cuando tiene al menos un sprite. Las definiciones viven en `db.json`, no
+alteran los píxeles del archivo fuente.
 
 ## Coordenadas, IDs y pivot
 
@@ -78,6 +79,36 @@ assets-pipeline sprite set npc/head_male_heavy/front/idle_0 --rect '64,0,32,32' 
 Al menos una opción debe estar presente. La región resultante se vuelve a comprobar contra las
 dimensiones actuales del archivo. La opción no indicada conserva su valor anterior. El comando
 no cambia el ID ni el archivo de origen.
+
+## `sprite auto`: generar regiones automáticamente
+
+```text
+assets-pipeline sprite auto <archivo> [--padding <píxeles>] [--dry-run] [--yes]
+```
+
+```sh
+assets-pipeline sprite auto entities/humans_parts.aseprite --dry-run
+assets-pipeline sprite auto entities/humans_parts.aseprite --padding 1 --yes
+```
+
+Analiza los píxeles del archivo (primer frame en Aseprite) y crea **una región por cada zona de
+contenido opaco conexa**, con su bounding box. No interpreta la lógica del dibujo: partes sueltas,
+sombras o píxeles aislados también generan regiones. Por eso el comando muestra una advertencia y
+pide confirmación; usa `--yes` en scripts.
+
+- `--padding` añade ese margen en píxeles alrededor de cada región (default `0`), recortado al
+  lienzo. Si el margen choca con una región existente o con otra región nueva, se usa la caja sin
+  margen; si aun así choca, la isla se omite.
+- Las definiciones existentes **nunca se modifican ni se solapan**. El contenido que ya cae dentro
+  de una región definida se ignora, por lo que volver a ejecutar el comando solo añade contenido
+  nuevo.
+- Nombres: usa el primer grupo libre entre `auto`, `auto_0`, `auto_1`… (los grupos se derivan de
+  los IDs de todo el repositorio) y numera `auto/1`, `auto/2`… en orden de arriba-izquierda a
+  abajo-derecha.
+- Pivot por defecto: `0.5,1` (centro inferior).
+- `--dry-run` muestra el grupo, las regiones detectadas y cuántas se omiten, sin escribir nada.
+- Si no hay contenido nuevo, informa «No se detectó contenido nuevo para regionar» y no modifica
+  `db.json`.
 
 ## `sprite rename`: cambiar ID
 

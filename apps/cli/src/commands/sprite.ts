@@ -1,7 +1,12 @@
 import type { Command } from 'commander';
 import { withContext } from '../context.js';
-import { printJson, requireConfirmation } from '../output/format.js';
-import { pivot, rectangle } from './values.js';
+import {
+  printAutoRegionPlan,
+  printAutoRegionWarning,
+  printJson,
+  requireConfirmation,
+} from '../output/format.js';
+import { number, pivot, rectangle } from './values.js';
 
 interface SpriteOptions {
   id?: string;
@@ -43,6 +48,32 @@ export function addSpriteCommands(program: Command): void {
         workspace.addSprite(file, options.id, rectangle(options.rect), pivot(options.pivot)),
       );
       process.stdout.write(`Sprite creado: ${options.id}\n`);
+    });
+
+  sprite
+    .command('auto')
+    .argument('<file>')
+    .description('Crear regiones automáticas a partir del contenido del archivo')
+    .option('--padding <pixels>', 'Margen alrededor de cada región', '0')
+    .option('--dry-run', 'Mostrar las regiones sin crearlas')
+    .option('--yes', 'Confirmar en un script')
+    .action(async (file: string, options: { padding: string; dryRun?: boolean; yes?: boolean }) => {
+      await withContext(program, !options.dryRun, async ({ workspace }) => {
+        const padding = number(options.padding, 'El padding');
+        printAutoRegionWarning();
+        const plan = await workspace.autoRegionSprites(file, { padding, dryRun: true });
+        printAutoRegionPlan(plan);
+        if (options.dryRun || plan.sprites.length === 0) return;
+        await requireConfirmation(
+          Boolean(options.yes),
+          `Se crearán ${plan.sprites.length} regiones en «${plan.group}».`,
+        );
+        const applied = await workspace.autoRegionSprites(file, { padding });
+        const skipped = applied.skipped > 0 ? ` · ${applied.skipped} omitidas` : '';
+        process.stdout.write(
+          `Regiones creadas: ${applied.sprites.length} en «${applied.group}»${skipped}.\n`,
+        );
+      });
     });
 
   sprite

@@ -1,5 +1,5 @@
 import { createInterface } from 'node:readline/promises';
-import type { ListedFile, PathChangePlan } from '@assets-pipeline/core';
+import type { AutoRegionPlan, ListedFile, PathChangePlan } from '@assets-pipeline/core';
 import { PipelineError } from '@assets-pipeline/core';
 
 export function printJson(value: unknown): void {
@@ -37,6 +37,38 @@ export function printPlan(plan: PathChangePlan, operation: 'move' | 'remove'): v
   if (plan.directoriesToCreate.length > 0) {
     process.stdout.write('Carpetas padre que se crearán:\n');
     for (const path of plan.directoriesToCreate) process.stdout.write(`  ${path}/\n`);
+  }
+}
+
+export function printAutoRegionWarning(): void {
+  process.stdout.write(
+    [
+      'Aviso: regiones automáticas.',
+      '  Se crea una región por cada zona de contenido opaco del archivo.',
+      '  No respeta la lógica de tus sprites: partes sueltas, sombras o píxeles',
+      '  aislados también generan regiones.',
+      '  Las definiciones existentes se conservan y las nuevas nunca se solapan.',
+      '',
+    ].join('\n'),
+  );
+}
+
+export function printAutoRegionPlan(plan: AutoRegionPlan): void {
+  if (plan.sprites.length === 0) {
+    process.stdout.write('No se detectó contenido nuevo para regionar.\n');
+    if (plan.skipped > 0) {
+      process.stdout.write(
+        `Omitidas: ${plan.skipped} (ya cubiertas por definiciones existentes).\n`,
+      );
+    }
+    return;
+  }
+  process.stdout.write(
+    `Regiones detectadas: ${plan.sprites.length} en «${plan.group}»${plan.skipped > 0 ? ` · ${plan.skipped} omitidas` : ''}\n`,
+  );
+  for (const sprite of plan.sprites) {
+    const { x, y, width, height } = sprite.rect;
+    process.stdout.write(`  ${sprite.id.padEnd(12)} x=${x} y=${y} ${width}×${height}\n`);
   }
 }
 

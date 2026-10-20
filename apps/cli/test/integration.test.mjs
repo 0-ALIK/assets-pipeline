@@ -15,6 +15,28 @@ const png = await sharp({
   .png()
   .toBuffer();
 
+async function blobsPng(width, height, squares) {
+  return sharp({
+    create: { width, height, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } },
+  })
+    .composite(
+      squares.map(({ x, y, size }) => ({
+        input: {
+          create: {
+            width: size,
+            height: size,
+            channels: 4,
+            background: { r: 255, g: 255, b: 255, alpha: 1 },
+          },
+        },
+        left: x,
+        top: y,
+      })),
+    )
+    .png()
+    .toBuffer();
+}
+
 async function temporaryRepository(action) {
   const root = await mkdtemp(join(tmpdir(), 'assets-pipeline-test-'));
   try {
@@ -591,6 +613,76 @@ test('build rejects empty animations and animations whose frames use different a
       '100',
     );
     fails(root, 'INVALID_INPUT', 'build');
+  });
+});
+
+test('sprite auto creates non-overlapping regions and reuses free groups', async () => {
+  await temporaryRepository(async (root) => {
+    await writeFile(
+      join(root, 'parts.png'),
+      await blobsPng(16, 16, [
+        { x: 1, y: 1, size: 2 },
+        { x: 10, y: 10, size: 2 },
+      ]),
+    );
+    succeeds(root, 'init', 'Auto region');
+    const preview = succeeds(root, 'sprite', 'auto', 'parts.png', '--dry-run');
+    assert.match(preview, /Aviso: regiones automáticas/);
+    assert.match(preview, /auto\/1/);
+    assert.match(preview, /auto\/2/);
+    assert.deepEqual(JSON.parse(succeeds(root, 'sprite', 'list', 'parts.png')), []);
+    fails(root, 'INVALID_INPUT', 'sprite', 'auto', 'parts.png');
+
+    const created = succeeds(root, 'sprite', 'auto', 'parts.png', '--padding', '1', '--yes');
+    assert.match(created, /Regiones creadas: 2 en «auto»/);
+    const sprites = JSON.parse(succeeds(root, 'sprite', 'list', 'parts.png'));
+    assert.deepEqual(
+      sprites.map((entry) => [
+        entry.id,
+        entry.sprite.x,
+        entry.sprite.y,
+        entry.sprite.width,
+        entry.sprite.height,
+      ]),
+      [
+        ['auto/1', 0, 0, 4, 4],
+        ['auto/2', 9, 9, 4, 4],
+      ],
+    );
+    assert.deepEqual(sprites[0].sprite.pivot, { x: 0.5, y: 1 });
+
+    const again = succeeds(root, 'sprite', 'auto', 'parts.png', '--yes');
+    assert.match(again, /No se detectó contenido nuevo/);
+
+    await writeFile(
+      join(root, 'parts.png'),
+      await blobsPng(16, 16, [
+        { x: 1, y: 1, size: 2 },
+        { x: 10, y: 10, size: 2 },
+        { x: 14, y: 14, size: 2 },
+      ]),
+    );
+    succeeds(
+      root,
+      'sprite',
+      'add',
+      'parts.png',
+      '--id',
+      'auto/9',
+      '--rect',
+      '0,14,1,1',
+      '--pivot',
+      '0,0',
+    );
+    const suffixed = succeeds(root, 'sprite', 'auto', 'parts.png', '--yes');
+    assert.match(suffixed, /Regiones creadas: 1 en «auto_0»/);
+    assert.deepEqual(
+      JSON.parse(succeeds(root, 'sprite', 'list', 'parts.png')).map((entry) => entry.id),
+      ['auto/1', 'auto/2', 'auto/9', 'auto_0/1'],
+    );
+
+    fails(root, 'INVALID_INPUT', 'sprite', 'auto', 'parts.png', '--padding=-1', '--yes');
+    fails(root, 'INVALID_INPUT', 'sprite', 'auto', 'parts.png', '--padding=1.5', '--yes');
   });
 });
 
