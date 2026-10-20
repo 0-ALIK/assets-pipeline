@@ -60,7 +60,10 @@ export function AutoRegionDialog({ path, onApply, onClose }: AutoRegionDialogPro
           if (token === request.current) setComputing(false);
         });
     }, 250);
-    return () => window.clearTimeout(timer);
+    return () => {
+      window.clearTimeout(timer);
+      request.current += 1;
+    };
   }, [parsedPadding, path, validPadding, workspace]);
 
   const apply = async (): Promise<void> => {
