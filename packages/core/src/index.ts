@@ -57,6 +57,12 @@ export { setSprite } from './application/use-cases/sprites/set-sprite.js';
 export { renameSprite } from './application/use-cases/sprites/rename-sprite.js';
 export { duplicateSprite } from './application/use-cases/sprites/duplicate-sprite.js';
 export { removeSprite } from './application/use-cases/sprites/remove-sprite.js';
+export { autoRegionSprites } from './application/use-cases/sprites/auto-region-sprites.js';
+export type {
+  AutoRegionPlan,
+  AutoRegionSprite,
+  AutoRegionSpritesInput,
+} from './application/use-cases/sprites/auto-region-sprites.js';
 export { listSprites } from './application/use-cases/sprites/list-sprites.js';
 export { showSprite } from './application/use-cases/sprites/show-sprite.js';
 export { addAnimation } from './application/use-cases/animations/add-animation.js';
@@ -88,6 +94,11 @@ export { readRepository, changeRepository } from './application/services/change-
 export { planPathChange } from './application/services/path-change-planner.js';
 export { buildAssets } from './application/services/build-assets.js';
 export type { BuildAssetsInput, ImportedSource } from './application/services/build-assets.js';
+export { detectContentRegions } from './application/services/content-regions.js';
+export type {
+  DetectContentRegionsInput,
+  DetectContentRegionsResult,
+} from './application/services/content-regions.js';
 
 export { planAtlasBuild } from './builders/packing/pack-atlases.js';
 export type {

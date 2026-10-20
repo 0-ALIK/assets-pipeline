@@ -40,6 +40,8 @@ import { listFiles } from './use-cases/project/list-files.js';
 import { planBuild as planBuildUseCase } from './use-cases/project/plan-build.js';
 import { validateRepository as validateRepositoryUseCase } from './use-cases/project/validate-repository.js';
 import { addSprite as addSpriteUseCase } from './use-cases/sprites/add-sprite.js';
+import { autoRegionSprites as autoRegionSpritesUseCase } from './use-cases/sprites/auto-region-sprites.js';
+import type { AutoRegionPlan } from './use-cases/sprites/auto-region-sprites.js';
 import { duplicateSprite as duplicateSpriteUseCase } from './use-cases/sprites/duplicate-sprite.js';
 import { listSprites as listSpritesUseCase } from './use-cases/sprites/list-sprites.js';
 import { removeSprite as removeSpriteUseCase } from './use-cases/sprites/remove-sprite.js';
@@ -168,6 +170,21 @@ export class RepositoryWorkspace {
 
   async removeSprite(id: string): Promise<void> {
     await removeSpriteUseCase(this.context, { id });
+  }
+
+  /**
+   * Creates one sprite per content island of a file. Existing definitions are
+   * preserved and never overlapped; `dryRun` only computes the plan.
+   */
+  async autoRegionSprites(
+    path: string,
+    options: { padding?: number; dryRun?: boolean } = {},
+  ): Promise<AutoRegionPlan> {
+    return autoRegionSpritesUseCase(this.context, {
+      path,
+      ...(options.padding === undefined ? {} : { padding: options.padding }),
+      ...(options.dryRun === undefined ? {} : { dryRun: options.dryRun }),
+    });
   }
 
   async showAnimation(id: string): Promise<AnimationLocation> {
